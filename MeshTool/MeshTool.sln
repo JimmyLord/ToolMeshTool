@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshTool", "MeshTool\MeshTool.vcxproj", "{5B245CF5-FF03-4CAD-A93D-7696C979FA36}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1F29FA21-047D-4940-BF9E-C90DC0105A2B} = {1F29FA21-047D-4940-BF9E-C90DC0105A2B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshToolGUI", "MeshTool\MeshToolGUI.vcxproj", "{3822EF9A-302D-40D2-AA0C-D818A979040D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "assimp", "Libs\assimp\assimp.vcxproj", "{1F29FA21-047D-4940-BF9E-C90DC0105A2B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5B245CF5-FF03-4CAD-A93D-7696C979FA36}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5B245CF5-FF03-4CAD-A93D-7696C979FA36}.Debug|Win32.Build.0 = Debug|Win32
+		{5B245CF5-FF03-4CAD-A93D-7696C979FA36}.Release|Win32.ActiveCfg = Release|Win32
+		{5B245CF5-FF03-4CAD-A93D-7696C979FA36}.Release|Win32.Build.0 = Release|Win32
+		{3822EF9A-302D-40D2-AA0C-D818A979040D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3822EF9A-302D-40D2-AA0C-D818A979040D}.Debug|Win32.Build.0 = Debug|Win32
+		{3822EF9A-302D-40D2-AA0C-D818A979040D}.Release|Win32.ActiveCfg = Release|Win32
+		{3822EF9A-302D-40D2-AA0C-D818A979040D}.Release|Win32.Build.0 = Release|Win32
+		{1F29FA21-047D-4940-BF9E-C90DC0105A2B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1F29FA21-047D-4940-BF9E-C90DC0105A2B}.Debug|Win32.Build.0 = Debug|Win32
+		{1F29FA21-047D-4940-BF9E-C90DC0105A2B}.Release|Win32.ActiveCfg = Release|Win32
+		{1F29FA21-047D-4940-BF9E-C90DC0105A2B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
