@@ -71,4 +71,7 @@
       <Filter>Source Files\Framework</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\todo.txt" />
+  </ItemGroup>
 </Project>

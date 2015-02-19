@@ -13,7 +13,7 @@ struct VertexFormat
     Vector2 uv[AI_MAX_NUMBER_OF_TEXTURECOORDS];
     Vector3 norm;
     Vector3 tangent;
-    Vector4 color;
+    unsigned char color[4];
     unsigned int boneindices[MAX_BONES_PER_VERTEX];
     float weights[MAX_BONES_PER_VERTEX];
 };
@@ -36,13 +36,23 @@ public:
     std::vector<MeshChunk> m_MeshChunks;
     std::vector<Bone> m_Bones;
 
-public:
-    //void InitMesh(unsigned int Index, const aiMesh* paiMesh);
-    //bool InitMaterials(const aiScene* pScene, const std::string& Filename);
-    //void Clear();
+    unsigned int m_NumUVChannels;
+    bool m_HasNormals;
+    bool m_HasTangents;
+    bool m_HasBitangents;
+    bool m_HasColor;
+    unsigned int m_MostBonesInfluences;
 
 public:
-    Mesh() {}
+    Mesh()
+    {
+        m_NumUVChannels = 0;
+        m_HasNormals = false;
+        m_HasTangents = false;
+        m_HasBitangents = false;
+        m_HasColor = false;
+        m_MostBonesInfluences = 0;
+    }
     ~Mesh() {}
 
     void LoadFromFile(const char* filename);

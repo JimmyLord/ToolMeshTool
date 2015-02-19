@@ -49,16 +49,18 @@ void Mesh::LoadFromFile(const char* filename)
     // Initialize the meshes in the scene one by one
     for( unsigned int mi=0; mi<nummeshes; mi++ )
     {
-        printf( "mesh %d:\n", mi );
-
         aiMesh* pMesh = pScene->mMeshes[mi];
+
+        printf( "mesh %d:\n", mi );
+        //printf( "  numverts: %d\n", pMesh->mNumVertices );
+        //printf( "  numfaces: %d\n", pMesh->mNumFaces );
+        //printf( "  numbones: %d\n", pMesh->mNumBones );
+
         MeshChunk* pMeshChunk = &m_MeshChunks[mi];
         
         // deal with verts
         {
             unsigned int numverts = pMesh->mNumVertices;
-
-            printf( "  numverts: %d\n", numverts );
 
             // Reserve enough space in our vector for the vertices.
             pMeshChunk->m_Vertices.resize( numverts );
@@ -66,21 +68,40 @@ void Mesh::LoadFromFile(const char* filename)
             for( unsigned int vi=0; vi<numverts; vi++ )
             {
                 // typecasting should be safe as long as aiVector3D is simply 3 floats in order.
-                memset( &pMeshChunk->m_Vertices[vi], 0, sizeof( VertexFormat) );
+                memset( &pMeshChunk->m_Vertices[vi], 0, sizeof(VertexFormat) );
 
                 if( pMesh->mVertices )
-                    pMeshChunk->m_Vertices[vi].pos     = *(Vector3*)&pMesh->mVertices[vi];
+                {
+                    pMeshChunk->m_Vertices[vi].pos = *(Vector3*)&pMesh->mVertices[vi];
+                }
                 if( pMesh->mNormals )
-                    pMeshChunk->m_Vertices[vi].norm    = *(Vector3*)&pMesh->mNormals[vi];
-                if( pMesh->mTangents )
-                    pMeshChunk->m_Vertices[vi].tangent = *(Vector3*)&pMesh->mTangents[vi];
+                {
+                    pMeshChunk->m_Vertices[vi].norm = *(Vector3*)&pMesh->mNormals[vi];
+                    m_HasNormals = true;
+                }
+                //if( pMesh->mTangents )
+                //{
+                //    pMeshChunk->m_Vertices[vi].tangent = *(Vector3*)&pMesh->mTangents[vi];
+                //    m_HasTangents = true;
+                //}
                 if( pMesh->mColors )
-                    pMeshChunk->m_Vertices[vi].color   = *(Vector4*)&pMesh->mColors[vi];
+                {
+                    pMeshChunk->m_Vertices[vi].color[0] = (unsigned char)(pMesh->mColors[0][vi].r * 255);
+                    pMeshChunk->m_Vertices[vi].color[1] = (unsigned char)(pMesh->mColors[0][vi].g * 255);
+                    pMeshChunk->m_Vertices[vi].color[2] = (unsigned char)(pMesh->mColors[0][vi].b * 255);
+                    pMeshChunk->m_Vertices[vi].color[3] = (unsigned char)(pMesh->mColors[0][vi].a * 255);
+                    m_HasColor = true;
+                }
 
-                for( int i=0; i<AI_MAX_NUMBER_OF_TEXTURECOORDS; i++ )
+                for( unsigned int i=0; i<AI_MAX_NUMBER_OF_TEXTURECOORDS; i++ )
                 {
                     if( pMesh->HasTextureCoords( i ) )
+                    {
                         pMeshChunk->m_Vertices[vi].uv[i]  = *(Vector2*)&pMesh->mTextureCoords[i][vi];
+
+                        if( i+1 > m_NumUVChannels )
+                            m_NumUVChannels = i+1;
+                    }
                 }
             }
         }
@@ -89,8 +110,6 @@ void Mesh::LoadFromFile(const char* filename)
         {
             unsigned int numfaces = pMesh->mNumFaces;
             unsigned int numindices = numfaces * 3;
-
-            printf( "  numfaces: %d\n", numfaces );
 
             pMeshChunk->m_Indices.resize( numindices );
 
@@ -109,8 +128,6 @@ void Mesh::LoadFromFile(const char* filename)
         // deal with bones
         {
             unsigned int numbones = pMesh->mNumBones;
-
-            printf( "  numbones: %d\n", numbones );
 
             for( unsigned int bi=0; bi<numbones; bi++ )
             {
@@ -136,13 +153,17 @@ void Mesh::LoadFromFile(const char* filename)
                     unsigned int vi = pMesh->mBones[bi]->mWeights[wi].mVertexId;
                     float weight = pMesh->mBones[bi]->mWeights[wi].mWeight;
 
-                    // add this bone weighting to the vertex necessary.
+                    // add this bone weighting to the vertex if necessary.
                     for( unsigned int bwi=0; bwi<MAX_BONES_PER_VERTEX; bwi++ )
                     {
                         if( m_MeshChunks[mi].m_Vertices[vi].weights[bwi] == 0 )
                         {
                             m_MeshChunks[mi].m_Vertices[vi].boneindices[bwi] = ourboneindex;
                             m_MeshChunks[mi].m_Vertices[vi].weights[bwi] = weight;
+
+                            if( bwi+1 > m_MostBonesInfluences )
+                                m_MostBonesInfluences = bwi+1;
+
                             break;
                         }
 
@@ -177,16 +198,25 @@ void Mesh::ExportToFile(const char* filename)
     cJSON_AddNumberToObject( root, "TotalIndices", totalindices );
     cJSON_AddNumberToObject( root, "TotalBones", totalbones );
 
+    cJSONExt_AddNumberToObjectIfDiffers( root, "VF-uv", m_NumUVChannels, (unsigned int)0 );
+    cJSONExt_AddNumberToObjectIfDiffers( root, "VF-normal", m_HasNormals, false );
+    //cJSONExt_AddNumberToObjectIfDiffers( root, "VF-tangent", m_HasTangents, false );
+    //cJSONExt_AddNumberToObjectIfDiffers( root, "VF-bitangent", m_HasBitangents, false );
+    cJSONExt_AddNumberToObjectIfDiffers( root, "VF-color", m_HasColor, false );
+    cJSONExt_AddNumberToObjectIfDiffers( root, "VF-mostweights", m_MostBonesInfluences, (unsigned int)0 );
+
     // Add the bone names and matrices.
     cJSON* bones = cJSON_CreateArray();
     cJSON_AddItemToObject( root, "Bones", bones );
     for( unsigned int bi=0; bi<totalbones; bi++ )
     {
-        cJSON* bone = cJSON_CreateObject();
-        cJSON_AddStringToObject( bone, "Name", m_Bones[bi].m_Name.c_str() );
-        cJSONExt_AddFloatArrayToObject( bone, "Matrix", &m_Bones[bi].m_OffsetMatrix.m11, 16 );
+        //cJSON* bone = cJSON_CreateObject();
+        //cJSON_AddStringToObject( bone, "Name", m_Bones[bi].m_Name.c_str() );
+        //cJSONExt_AddFloatArrayToObject( bone, "Matrix", &m_Bones[bi].m_OffsetMatrix.m11, 16 );
+        //cJSON_AddItemToArray( bones, bone );
 
-        cJSON_AddItemToArray( bones, bone );
+        cJSON* bonename = cJSON_CreateString( m_Bones[bi].m_Name.c_str() );
+        cJSON_AddItemToArray( bones, bonename );
     }
 
     //// quick debug, write out first meshchunks verts/indices as readable text.
@@ -242,16 +272,41 @@ void Mesh::ExportToFile(const char* filename)
     const char rawdelimiter[] = "\n#RAW";
     fwrite( rawdelimiter, sizeof(rawdelimiter), 1, file ); 
 
+    // raw dump of bone matrices
+    for( unsigned int bi=0; bi<totalbones; bi++ )
+    {
+        fwrite( &m_Bones[bi].m_OffsetMatrix.m11, sizeof(MyMatrix), 1, file );
+    }
+
     // raw dump of vertex info.
     for( unsigned int mi=0; mi<m_MeshChunks.size(); mi++ )
     {
         unsigned int numvertsinthischunk = m_MeshChunks[mi].m_Vertices.size();
 
-        for( unsigned int i=0; i<numvertsinthischunk; i++ )
+        for( unsigned int vi=0; vi<numvertsinthischunk; vi++ )
         {
-            fwrite( &m_MeshChunks[mi].m_Vertices[i].pos, sizeof(Vector3), 1, file );
-            fwrite( &m_MeshChunks[mi].m_Vertices[i].uv[0], sizeof(Vector2), 1, file );
-            fwrite( &m_MeshChunks[mi].m_Vertices[i].norm, sizeof(Vector3), 1, file );
+            fwrite( &m_MeshChunks[mi].m_Vertices[vi].pos, sizeof(Vector3), 1, file );
+
+            for( unsigned int i=0; i<m_NumUVChannels; i++ )
+                fwrite( &m_MeshChunks[mi].m_Vertices[vi].uv[i], sizeof(Vector2), 1, file );
+
+            if( m_HasNormals )
+                fwrite( &m_MeshChunks[mi].m_Vertices[vi].norm, sizeof(Vector3), 1, file );
+
+            if( m_HasTangents )
+                fwrite( &m_MeshChunks[mi].m_Vertices[vi].tangent, sizeof(Vector3), 1, file );
+
+            //if( m_HasBitangents )
+            //    fwrite( &m_MeshChunks[mi].m_Vertices[vi].bitangent, sizeof(Vector3), 1, file );
+
+            if( m_HasColor )
+                fwrite( &m_MeshChunks[mi].m_Vertices[vi].color, sizeof(unsigned char) * 4, 1, file );
+
+            for( unsigned int i=0; i<m_MostBonesInfluences; i++ )
+                fwrite( &m_MeshChunks[mi].m_Vertices[vi].boneindices[i], sizeof(unsigned int), 1, file );
+
+            for( unsigned int i=0; i<m_MostBonesInfluences; i++ )
+                fwrite( &m_MeshChunks[mi].m_Vertices[vi].weights[i], sizeof(float), 1, file );
         }
     }
 

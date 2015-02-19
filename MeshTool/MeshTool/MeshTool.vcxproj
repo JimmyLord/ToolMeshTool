@@ -39,6 +39,9 @@
     <ClInclude Include="Source\Mesh.h" />
     <ClInclude Include="Source\MeshTool.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\todo.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5B245CF5-FF03-4CAD-A93D-7696C979FA36}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
