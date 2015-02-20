@@ -1,46 +1,66 @@
 #include "CommonHeader.h"
 
+Mesh::Mesh()
+{
+    m_pScene = 0;
+
+    m_NumUVChannels = 0;
+    m_HasNormals = false;
+    m_HasTangents = false;
+    m_HasBitangents = false;
+    m_HasColor = false;
+    m_MostBonesInfluences = 0;
+}
+
+Mesh::~Mesh()
+{
+}
+
 void Mesh::LoadFromFile(const char* filename)
 {
-    Assimp::Importer Importer;
-
     // load a model into an assimp scene.
-    const aiScene* pScene = Importer.ReadFile( filename, 
-                                aiProcess_CalcTangentSpace |
-                                aiProcess_JoinIdenticalVertices |
-                                //aiProcess_MakeLeftHanded |
-                                aiProcess_Triangulate |
-                                //aiProcess_RemoveComponent |
-                                aiProcess_GenNormals |
-                                //aiProcess_GenSmoothNormals |
-                                //aiProcess_SplitLargeMeshes |
-                                //aiProcess_PreTransformVertices |
-                                aiProcess_LimitBoneWeights |           // limit of 4 bones influencing vertex.
-                                //aiProcess_ValidateDataStructure |
-                                //aiProcess_ImproveCacheLocality |
-                                //aiProcess_RemoveRedundantMaterials |
-                                //aiProcess_FixInfacingNormals |
-                                aiProcess_SortByPType |
-                                //aiProcess_FindDegenerates |
-                                //aiProcess_FindInvalidData |
-                                aiProcess_GenUVCoords |
-                                //aiProcess_TransformUVCoords |
-                                //aiProcess_FindInstances |
-                                //aiProcess_OptimizeMeshes |
-                                //aiProcess_OptimizeGraph |
-                                aiProcess_FlipUVs |
-                                //aiProcess_FlipWindingOrder |
-                                //aiProcess_SplitByBoneCount |
-                                //aiProcess_Debone |
-                                0 );
+    m_pScene = m_Importer.ReadFile( filename, 
+                                    aiProcess_CalcTangentSpace |
+                                    aiProcess_JoinIdenticalVertices |
+                                    //aiProcess_MakeLeftHanded |
+                                    aiProcess_Triangulate |
+                                    //aiProcess_RemoveComponent |
+                                    aiProcess_GenNormals |
+                                    //aiProcess_GenSmoothNormals |
+                                    //aiProcess_SplitLargeMeshes |
+                                    //aiProcess_PreTransformVertices |
+                                    aiProcess_LimitBoneWeights |           // limit of 4 bones influencing vertex.
+                                    //aiProcess_ValidateDataStructure |
+                                    //aiProcess_ImproveCacheLocality |
+                                    //aiProcess_RemoveRedundantMaterials |
+                                    //aiProcess_FixInfacingNormals |
+                                    aiProcess_SortByPType |
+                                    //aiProcess_FindDegenerates |
+                                    //aiProcess_FindInvalidData |
+                                    aiProcess_GenUVCoords |
+                                    //aiProcess_TransformUVCoords |
+                                    //aiProcess_FindInstances |
+                                    //aiProcess_OptimizeMeshes |
+                                    //aiProcess_OptimizeGraph |
+                                    aiProcess_FlipUVs |
+                                    //aiProcess_FlipWindingOrder |
+                                    //aiProcess_SplitByBoneCount |
+                                    //aiProcess_Debone |
+                                    0 );
 
-    if( pScene == 0 )
+    if( m_pScene == 0 )
     {
-        printf( "Importer.ReadFile(%s): %s\n", filename, Importer.GetErrorString() );
+        printf( "Importer.ReadFile(%s): %s\n", filename, m_Importer.GetErrorString() );
         return;
     }
 
-    unsigned int nummeshes = pScene->mNumMeshes;
+    PullMeshDataFromScene();
+    PullBoneDataFromScene();
+}
+
+void Mesh::PullMeshDataFromScene()
+{
+    unsigned int nummeshes = m_pScene->mNumMeshes;
     m_MeshChunks.resize( nummeshes );
 
     printf( "===\n" );
@@ -49,7 +69,7 @@ void Mesh::LoadFromFile(const char* filename)
     // Initialize the meshes in the scene one by one
     for( unsigned int mi=0; mi<nummeshes; mi++ )
     {
-        aiMesh* pMesh = pScene->mMeshes[mi];
+        aiMesh* pMesh = m_pScene->mMeshes[mi];
 
         printf( "mesh %d:\n", mi );
         //printf( "  numverts: %d\n", pMesh->mNumVertices );
@@ -70,21 +90,21 @@ void Mesh::LoadFromFile(const char* filename)
                 // typecasting should be safe as long as aiVector3D is simply 3 floats in order.
                 memset( &pMeshChunk->m_Vertices[vi], 0, sizeof(VertexFormat) );
 
-                if( pMesh->mVertices )
+                if( pMesh->HasPositions() )
                 {
                     pMeshChunk->m_Vertices[vi].pos = *(Vector3*)&pMesh->mVertices[vi];
                 }
-                if( pMesh->mNormals )
+                if( pMesh->HasNormals() )
                 {
                     pMeshChunk->m_Vertices[vi].norm = *(Vector3*)&pMesh->mNormals[vi];
                     m_HasNormals = true;
                 }
-                //if( pMesh->mTangents )
+                //if( pMesh->HasTangents() )
                 //{
                 //    pMeshChunk->m_Vertices[vi].tangent = *(Vector3*)&pMesh->mTangents[vi];
                 //    m_HasTangents = true;
                 //}
-                if( pMesh->mColors )
+                if( pMesh->HasVertexColors( 0 ) )
                 {
                     pMeshChunk->m_Vertices[vi].color[0] = (unsigned char)(pMesh->mColors[0][vi].r * 255);
                     pMeshChunk->m_Vertices[vi].color[1] = (unsigned char)(pMesh->mColors[0][vi].g * 255);
@@ -124,54 +144,183 @@ void Mesh::LoadFromFile(const char* filename)
                 pMeshChunk->m_Indices[fi*3 + 2] = Face.mIndices[2];
             }
         }
+    }
+}
 
-        // deal with bones
+void Mesh::PullBoneDataFromScene()
+{
+    // deal with bones
+    unsigned int nummeshes = m_pScene->mNumMeshes;
+
+    for( unsigned int mi=0; mi<nummeshes; mi++ )
+    {
+        aiMesh* pMesh = m_pScene->mMeshes[mi];
+
+        unsigned int numbones = pMesh->mNumBones;
+
+        for( unsigned int bi=0; bi<numbones; bi++ )
         {
-            unsigned int numbones = pMesh->mNumBones;
+            Bone bone;
+            bone.m_Name = pMesh->mBones[bi]->mName.data;
+            bone.m_OffsetMatrix = *(MyMatrix*)&pMesh->mBones[bi]->mOffsetMatrix; // typecasting should be safe as long as aiMatrix4x4 is simply 16 floats in order.
+            bone.m_OffsetMatrix.Transpose();
 
-            for( unsigned int bi=0; bi<numbones; bi++ )
+            // check that all bones influence at least one vertex.
+            assert( pMesh->mBones[bi]->mNumWeights > 0 );
+
+            // check if this bone is already in our list.
+            int ourboneindex = m_Bones.size();
+            for( unsigned int i=0; i<m_Bones.size(); i++ )
             {
-                Bone bone;
-                bone.m_Name = pMesh->mBones[bi]->mName.data;
-                bone.m_OffsetMatrix = *(MyMatrix*)&pMesh->mBones[bi]->mOffsetMatrix; // typecasting should be safe as long as aiMatrix4x4 is simply 16 floats in order.
-
-                // check if this bone is already in our list.
-                int ourboneindex = m_Bones.size();
-                for( unsigned int i=0; i<m_Bones.size(); i++ )
+                if( m_Bones[i].m_Name == bone.m_Name )
                 {
-                    if( m_Bones[i].m_Name == bone.m_Name )
-                    {
-                        ourboneindex = i;
-                        assert( m_Bones[i].m_OffsetMatrix == bone.m_OffsetMatrix );
-                    }
-                }
-                if( ourboneindex == m_Bones.size() )
-                    m_Bones.push_back( bone );
-
-                for( unsigned int wi=0; wi<pMesh->mBones[bi]->mNumWeights; wi++ )
-                {
-                    unsigned int vi = pMesh->mBones[bi]->mWeights[wi].mVertexId;
-                    float weight = pMesh->mBones[bi]->mWeights[wi].mWeight;
-
-                    // add this bone weighting to the vertex if necessary.
-                    for( unsigned int bwi=0; bwi<MAX_BONES_PER_VERTEX; bwi++ )
-                    {
-                        if( m_MeshChunks[mi].m_Vertices[vi].weights[bwi] == 0 )
-                        {
-                            m_MeshChunks[mi].m_Vertices[vi].boneindices[bwi] = ourboneindex;
-                            m_MeshChunks[mi].m_Vertices[vi].weights[bwi] = weight;
-
-                            if( bwi+1 > m_MostBonesInfluences )
-                                m_MostBonesInfluences = bwi+1;
-
-                            break;
-                        }
-
-                        // if this assert trips, then too many bones influence this vertex.
-                        assert( bwi < MAX_BONES_PER_VERTEX );
-                    }
+                    ourboneindex = i;
+                    assert( m_Bones[i].m_OffsetMatrix == bone.m_OffsetMatrix );
                 }
             }
+            if( ourboneindex == m_Bones.size() )
+                m_Bones.push_back( bone );
+
+            for( unsigned int wi=0; wi<pMesh->mBones[bi]->mNumWeights; wi++ )
+            {
+                unsigned int vi = pMesh->mBones[bi]->mWeights[wi].mVertexId;
+                float weight = pMesh->mBones[bi]->mWeights[wi].mWeight;
+
+                // add this bone weighting to the vertex if necessary.
+                for( unsigned int bwi=0; bwi<MAX_BONES_PER_VERTEX; bwi++ )
+                {
+                    if( m_MeshChunks[mi].m_Vertices[vi].weights[bwi] == 0 )
+                    {
+                        m_MeshChunks[mi].m_Vertices[vi].boneindices[bwi] = ourboneindex;
+                        m_MeshChunks[mi].m_Vertices[vi].weights[bwi] = weight;
+
+                        if( bwi+1 > m_MostBonesInfluences )
+                            m_MostBonesInfluences = bwi+1;
+
+                        break;
+                    }
+
+                    // if this assert trips, then too many bones influence this vertex.
+                    assert( bwi < MAX_BONES_PER_VERTEX );
+                }
+            }
+        }
+    }
+}
+
+bool Mesh::IsNodeABone(aiNode* pNode)
+{
+    for( unsigned int bi=0; bi<m_Bones.size(); bi++ )
+    {
+        if( m_Bones[bi].m_Name == pNode->mName.data )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int Mesh::ExportNodeHeirarchyDataFromScene(cJSON* pParentNode, aiNode* pNode, int depth)
+{
+    int count = 1;
+
+    m_NodeNames.push_back( pNode->mName.data );
+
+    cJSON* thisnode = cJSON_CreateObject();
+    cJSON_AddItemToObject( pParentNode, pNode->mName.data, thisnode );
+
+    //for( int i=0; i<depth; i++ )
+    //    printf( " " );
+    //printf( "%s\n", pNode->mName.data );
+
+    for( unsigned int ni=0; ni<pNode->mNumChildren; ni++ )
+    {
+        count += ExportNodeHeirarchyDataFromScene( thisnode, pNode->mChildren[ni], depth+1 );
+    }
+
+    return count;
+}
+
+void Mesh::ExportAnimationDataFromScene(cJSON* pAnimationArray)
+{
+    unsigned int numanims = m_pScene->mNumAnimations;
+
+    for( unsigned int ai=0; ai<numanims; ai++ )
+    {
+        cJSON* animation = cJSON_CreateObject();
+        cJSON_AddItemToArray( pAnimationArray, animation );
+
+        cJSON_AddStringToObject( animation, "Name", m_pScene->mAnimations[ai]->mName.data );
+        cJSON_AddNumberToObject( animation, "Duration", m_pScene->mAnimations[ai]->mDuration );
+        cJSON_AddNumberToObject( animation, "TicksPerSecond", m_pScene->mAnimations[ai]->mTicksPerSecond );
+        cJSON_AddNumberToObject( animation, "NumChannels", m_pScene->mAnimations[ai]->mNumChannels );
+    }
+}
+
+void Mesh::DumpRawAnimationDataFromScene(FILE* file)
+{
+    unsigned int numanims = m_pScene->mNumAnimations;
+
+    for( unsigned int ai=0; ai<numanims; ai++ )
+    {
+        unsigned int numchannels = m_pScene->mAnimations[ai]->mNumChannels;
+
+        for( unsigned int ci=0; ci<numchannels; ci++ )
+        {
+            aiNodeAnim* pNodeAnim = m_pScene->mAnimations[ai]->mChannels[ci];
+
+            // write out the full node name.
+            //fwrite( &pNodeAnim->mNodeName.length, sizeof(unsigned int), 1, file );
+            //fwrite( &pNodeAnim->mNodeName.data, sizeof(char), pNodeAnim->mNodeName.length, file );
+            // write out the node index instead of the full node name.
+            unsigned int ni;
+            for( ni=0; ni<m_NodeNames.size(); ni++ )
+            {
+                if( strcmp( m_NodeNames[ni], pNodeAnim->mNodeName.data ) == 0 )
+                    break;
+            }
+            assert( ni != m_NodeNames.size() );
+            fwrite( &ni, sizeof(unsigned int), 1, file );
+
+            // TODO: eliminate duplicate keys
+
+            // write out all positions.  time as a float, value as vector3.
+            fwrite( &pNodeAnim->mNumPositionKeys, sizeof(unsigned int), 1, file );
+            for( unsigned int ki=0; ki<pNodeAnim->mNumPositionKeys; ki++ )
+            {
+                float time = (float)pNodeAnim->mPositionKeys[ki].mTime;
+                fwrite( &time, sizeof(float), 1, file );
+            }
+            for( unsigned int ki=0; ki<pNodeAnim->mNumPositionKeys; ki++ )
+            {
+                fwrite( &pNodeAnim->mPositionKeys[ki].mValue, sizeof(float)*3, 1, file );
+            }
+
+            // write out all rotations.  time as a float, value as quaternion.
+            fwrite( &pNodeAnim->mNumRotationKeys, sizeof(unsigned int), 1, file );
+            for( unsigned int ki=0; ki<pNodeAnim->mNumRotationKeys; ki++ )
+            {
+                float time = (float)pNodeAnim->mRotationKeys[ki].mTime;
+                fwrite( &time, sizeof(float), 1, file );
+            }
+            for( unsigned int ki=0; ki<pNodeAnim->mNumRotationKeys; ki++ )
+            {
+                fwrite( &pNodeAnim->mRotationKeys[ki].mValue, sizeof(float)*4, 1, file );
+            }
+
+            // write out all scales.  time as a float, value as vector3.
+            fwrite( &pNodeAnim->mNumScalingKeys, sizeof(unsigned int), 1, file );
+            for( unsigned int ki=0; ki<pNodeAnim->mNumScalingKeys; ki++ )
+            {
+                float time = (float)pNodeAnim->mScalingKeys[ki].mTime;
+                fwrite( &time, sizeof(float), 1, file );
+            }
+            for( unsigned int ki=0; ki<pNodeAnim->mNumScalingKeys; ki++ )
+            {
+                fwrite( &pNodeAnim->mScalingKeys[ki].mValue, sizeof(float)*3, 1, file );
+            }
+
         }
     }
 }
@@ -219,6 +368,22 @@ void Mesh::ExportToFile(const char* filename)
         cJSON_AddItemToArray( bones, bonename );
     }
 
+    int totalnodes = 0;
+    if( m_pScene->mRootNode )
+    {
+        cJSON* nodes = cJSON_CreateObject();
+        totalnodes = ExportNodeHeirarchyDataFromScene( nodes, m_pScene->mRootNode );
+        cJSON_AddNumberToObject( root, "TotalNodes", totalnodes );
+        cJSON_AddItemToObject( root, "Nodes", nodes );
+    }
+
+    if( m_pScene->mAnimations)
+    {
+        cJSON* animationarray = cJSON_CreateArray();
+        cJSON_AddItemToObject( root, "AnimArray", animationarray );
+        ExportAnimationDataFromScene( animationarray );
+    }
+
     //// quick debug, write out first meshchunks verts/indices as readable text.
     //{
     //    unsigned int numvertsinthischunk = m_MeshChunks[0].m_Vertices.size();
@@ -238,6 +403,7 @@ void Mesh::ExportToFile(const char* filename)
     //}
 
     // Save the json object to disk.
+    //char* jsonstr = cJSON_PrintUnformatted( root );
     char* jsonstr = cJSON_Print( root );
 
     char outputfilename[260];
@@ -245,28 +411,8 @@ void Mesh::ExportToFile(const char* filename)
     
     FILE* file;
     fopen_s( &file, outputfilename, "wb" );
-
-    // strip whitespace from json str.. keep newline's
-    char* jsonstr_stripped;
-    int len = strlen( jsonstr );
-    jsonstr_stripped = new char[len+1];
-    {
-        int newlen = 0;
-        for( int i=0; i<len; i++ )
-        {
-            if( jsonstr[i] != ' ' && jsonstr[i] != '\t' &&
-                jsonstr[i] != '\r' ) //&& jsonstr[i] != '\n' )
-            {
-                jsonstr_stripped[newlen] = jsonstr[i];
-                newlen++;
-            }
-        }
-        jsonstr_stripped[newlen] = 0;
-    }
+    fprintf( file, jsonstr );
     free( jsonstr );
-
-    fprintf( file, jsonstr_stripped );
-    delete jsonstr_stripped;
 
     // write out a marker for start of raw data
     const char rawdelimiter[] = "\n#RAW";
@@ -337,6 +483,9 @@ void Mesh::ExportToFile(const char* filename)
 
         vertcount += numvertsinthischunk;
     }
+
+    // raw dump of animation channels.
+    DumpRawAnimationDataFromScene( file );
 
     fclose( file );
 

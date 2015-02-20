@@ -30,11 +30,24 @@ struct Bone
     MyMatrix m_OffsetMatrix;
 };
 
+//struct Animation
+//{
+//    std::string m_Name;
+//
+//    double m_Duration;
+//    double m_TicksPerSecond;
+//};
+
 class Mesh
 {
 public:
+    Assimp::Importer m_Importer;
+    const aiScene* m_pScene;
+
     std::vector<MeshChunk> m_MeshChunks;
     std::vector<Bone> m_Bones;
+    std::vector<char*> m_NodeNames;
+    //std::vector<Animation> m_Animations;
 
     unsigned int m_NumUVChannels;
     bool m_HasNormals;
@@ -44,19 +57,19 @@ public:
     unsigned int m_MostBonesInfluences;
 
 public:
-    Mesh()
-    {
-        m_NumUVChannels = 0;
-        m_HasNormals = false;
-        m_HasTangents = false;
-        m_HasBitangents = false;
-        m_HasColor = false;
-        m_MostBonesInfluences = 0;
-    }
-    ~Mesh() {}
+    Mesh();
+    ~Mesh();
 
     void LoadFromFile(const char* filename);
+    void PullMeshDataFromScene();
+    void PullBoneDataFromScene();
+
+    bool IsNodeABone(aiNode* pNode);
+
     void ExportToFile(const char* filename);
+    int ExportNodeHeirarchyDataFromScene(cJSON* pParentNode, aiNode* pNode, int depth = 0);
+    void ExportAnimationDataFromScene(cJSON* pAnimationArray);
+    void DumpRawAnimationDataFromScene(FILE* file);
 }; 
 
 #endif //__MESH_H__
