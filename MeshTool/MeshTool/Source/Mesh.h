@@ -47,6 +47,7 @@ public:
     std::vector<MeshChunk> m_MeshChunks;
     std::vector<Bone> m_Bones;
     std::vector<char*> m_NodeNames;
+    std::vector<MyMatrix> m_NodeTransforms;
     //std::vector<Animation> m_Animations;
 
     unsigned int m_NumUVChannels;
@@ -69,6 +70,7 @@ public:
     void ExportToFile(const char* filename);
     int ExportNodeHeirarchyDataFromScene(cJSON* pParentNode, aiNode* pNode, int depth = 0);
     void ExportAnimationDataFromScene(cJSON* pAnimationArray);
+    void DumpRawNodeTransformsFromScene(FILE* file);
     void DumpRawAnimationDataFromScene(FILE* file);
 }; 
 

@@ -226,6 +226,9 @@ int Mesh::ExportNodeHeirarchyDataFromScene(cJSON* pParentNode, aiNode* pNode, in
     int count = 1;
 
     m_NodeNames.push_back( pNode->mName.data );
+    MyMatrix transform = *(MyMatrix*)&pNode->mTransformation;
+    transform.Transpose();
+    m_NodeTransforms.push_back( transform );
 
     cJSON* thisnode = cJSON_CreateObject();
     cJSON_AddItemToObject( pParentNode, pNode->mName.data, thisnode );
@@ -256,6 +259,11 @@ void Mesh::ExportAnimationDataFromScene(cJSON* pAnimationArray)
         cJSON_AddNumberToObject( animation, "TicksPerSecond", m_pScene->mAnimations[ai]->mTicksPerSecond );
         cJSON_AddNumberToObject( animation, "NumChannels", m_pScene->mAnimations[ai]->mNumChannels );
     }
+}
+
+void Mesh::DumpRawNodeTransformsFromScene(FILE* file)
+{
+    fwrite( &m_NodeTransforms[0], sizeof(MyMatrix), m_NodeTransforms.size(), file );
 }
 
 void Mesh::DumpRawAnimationDataFromScene(FILE* file)
@@ -484,7 +492,8 @@ void Mesh::ExportToFile(const char* filename)
         vertcount += numvertsinthischunk;
     }
 
-    // raw dump of animation channels.
+    // dump more raw data to our file
+    DumpRawNodeTransformsFromScene( file );
     DumpRawAnimationDataFromScene( file );
 
     fclose( file );
