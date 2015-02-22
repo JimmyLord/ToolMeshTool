@@ -314,7 +314,10 @@ void Mesh::DumpRawAnimationDataFromScene(FILE* file)
             }
             for( unsigned int ki=0; ki<pNodeAnim->mNumRotationKeys; ki++ )
             {
-                fwrite( &pNodeAnim->mRotationKeys[ki].mValue, sizeof(float)*4, 1, file );
+                fwrite( &pNodeAnim->mRotationKeys[ki].mValue.x, sizeof(float), 1, file );
+                fwrite( &pNodeAnim->mRotationKeys[ki].mValue.y, sizeof(float), 1, file );
+                fwrite( &pNodeAnim->mRotationKeys[ki].mValue.z, sizeof(float), 1, file );
+                fwrite( &pNodeAnim->mRotationKeys[ki].mValue.w, sizeof(float), 1, file );
             }
 
             // write out all scales.  time as a float, value as vector3.
@@ -335,6 +338,9 @@ void Mesh::DumpRawAnimationDataFromScene(FILE* file)
 
 void Mesh::ExportToFile(const char* filename)
 {
+    if( m_pScene == 0 )
+        return;
+
     unsigned int nummeshes = m_MeshChunks.size();
 
     unsigned int totalverts = 0;
