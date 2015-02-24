@@ -33,6 +33,11 @@ bool MeshTool_ParseArgs(int argc, char** argv, SettingsStruct* pSettings)
 
     for( int i=1; i<argc; i++ )
     {
+        // treat the first arg as -s if - isn't the first character.
+        if( i == 1 && strncmp( argv[i], "-", 1 ) != 0 )
+        {
+            pSettings->sourcefilename = argv[i];
+        }
         if( ( strcmp( argv[i], "-s" ) == 0 || strcmp( argv[i], "-source" ) == 0 ) )
         {
             if( i+1 >= argc )
@@ -59,10 +64,12 @@ bool MeshTool_ParseArgs(int argc, char** argv, SettingsStruct* pSettings)
     else if( pSettings->sourcefilename == 0 )
     {
         printf( "Source filename required - use -s\n" );
+        invalidargs = true;
     }
     else if( pSettings->outputfilename == 0 )
     {
-        printf( "Output filename required - use -o\n" );
+        pSettings->outputfilename = pSettings->sourcefilename;
+        //printf( "Output filename required - use -o\n" );
     }
     else
     {

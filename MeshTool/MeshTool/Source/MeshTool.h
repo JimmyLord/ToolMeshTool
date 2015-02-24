@@ -11,6 +11,10 @@ struct SettingsStruct
         sourcefilename = 0;
         outputfilename = 0;
     }
+
+    SettingsStruct::~SettingsStruct()
+    {
+    }
 };
 
 int main(int argc, char** argv);
