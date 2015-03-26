@@ -14,7 +14,7 @@ struct VertexFormat
     Vector3 norm;
     Vector3 tangent;
     unsigned char color[4];
-    unsigned int boneindices[MAX_BONES_PER_VERTEX];
+    unsigned char boneindices[MAX_BONES_PER_VERTEX]; // max 256 bones. engine code has max limit of 100 ATM anyway.
     float weights[MAX_BONES_PER_VERTEX];
 };
 

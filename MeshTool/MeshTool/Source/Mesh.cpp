@@ -169,8 +169,9 @@ void Mesh::PullBoneDataFromScene()
             assert( pMesh->mBones[bi]->mNumWeights > 0 );
 
             // check if this bone is already in our list.
-            int ourboneindex = m_Bones.size();
-            for( unsigned int i=0; i<m_Bones.size(); i++ )
+            assert( numbones <= 256 );
+            unsigned char ourboneindex = m_Bones.size();
+            for( unsigned char i=0; i<m_Bones.size(); i++ )
             {
                 if( m_Bones[i].m_Name == bone.m_Name )
                 {
@@ -463,7 +464,7 @@ void Mesh::ExportToFile(const char* filename)
                 fwrite( &m_MeshChunks[mi].m_Vertices[vi].color, sizeof(unsigned char) * 4, 1, file );
 
             for( unsigned int i=0; i<m_MostBonesInfluences; i++ )
-                fwrite( &m_MeshChunks[mi].m_Vertices[vi].boneindices[i], sizeof(unsigned int), 1, file );
+                fwrite( &m_MeshChunks[mi].m_Vertices[vi].boneindices[i], sizeof(unsigned char), 1, file );
 
             for( unsigned int i=0; i<m_MostBonesInfluences; i++ )
                 fwrite( &m_MeshChunks[mi].m_Vertices[vi].weights[i], sizeof(float), 1, file );
