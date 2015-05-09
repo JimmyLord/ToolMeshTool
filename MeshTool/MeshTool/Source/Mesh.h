@@ -18,10 +18,16 @@ struct VertexFormat
     float weights[MAX_BONES_PER_VERTEX];
 };
 
+struct Material
+{
+    Vector4 color;
+};
+
 struct MeshChunk
 {
     std::vector<VertexFormat> m_Vertices;
     std::vector<unsigned int> m_Indices;
+    unsigned int m_MaterialIndex;
 };
 
 struct Bone

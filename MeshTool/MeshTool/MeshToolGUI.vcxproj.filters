@@ -44,6 +44,9 @@
     <ClCompile Include="Source\MeshTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\cJSON\cJSON.h">
@@ -71,6 +74,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\MeshTool.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Mesh.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -77,6 +77,8 @@ void Mesh::PullMeshDataFromScene()
         //printf( "  numbones: %d\n", pMesh->mNumBones );
 
         MeshChunk* pMeshChunk = &m_MeshChunks[mi];
+
+        pMeshChunk->m_MaterialIndex = pMesh->mMaterialIndex;
         
         // deal with verts
         {
@@ -343,86 +345,127 @@ void Mesh::ExportToFile(const char* filename)
         return;
 
     unsigned int nummeshes = m_MeshChunks.size();
+    unsigned int nummaterials = m_pScene->mNumMaterials;
 
-    unsigned int totalverts = 0;
-    unsigned int totalindices = 0;
-    unsigned int totalbones = m_Bones.size();
-
-    for( unsigned int mi=0; mi<nummeshes; mi++ )
+    bool* MaterialsInUse = new bool[nummaterials];
+    memset( MaterialsInUse, 0, sizeof(bool)*nummaterials );
+    for( unsigned int mati=0; mati<nummaterials; mati++ )
     {
-        totalverts += m_MeshChunks[mi].m_Vertices.size();
-        totalindices += m_MeshChunks[mi].m_Indices.size();
+        for( unsigned int mi=0; mi<nummeshes; mi++ )
+        {
+            if( m_MeshChunks[mi].m_MaterialIndex == mati )
+            {
+                MaterialsInUse[mati] = true;
+            }
+        }
     }
 
     // Create a json object.
     cJSON* root = cJSON_CreateObject();
-    
-    // Add the vert/index/bone count.
-    cJSON_AddNumberToObject( root, "TotalVerts", totalverts );
-    cJSON_AddNumberToObject( root, "TotalIndices", totalindices );
-    cJSON_AddNumberToObject( root, "TotalBones", totalbones );
 
-    cJSONExt_AddNumberToObjectIfDiffers( root, "VF-uv", m_NumUVChannels, (unsigned int)0 );
-    cJSONExt_AddNumberToObjectIfDiffers( root, "VF-normal", m_HasNormals, false );
-    //cJSONExt_AddNumberToObjectIfDiffers( root, "VF-tangent", m_HasTangents, false );
-    //cJSONExt_AddNumberToObjectIfDiffers( root, "VF-bitangent", m_HasBitangents, false );
-    cJSONExt_AddNumberToObjectIfDiffers( root, "VF-color", m_HasColor, false );
-    cJSONExt_AddNumberToObjectIfDiffers( root, "VF-mostweights", m_MostBonesInfluences, (unsigned int)0 );
+    cJSON* mesharray = cJSON_CreateArray();
+    cJSON_AddItemToObject( root, "Meshes", mesharray );
 
-    // Add the bone names and matrices.
-    cJSON* bones = cJSON_CreateArray();
-    cJSON_AddItemToObject( root, "Bones", bones );
-    for( unsigned int bi=0; bi<totalbones; bi++ )
+    // export bones/nodes/anims commonly, not once per material
     {
-        //cJSON* bone = cJSON_CreateObject();
-        //cJSON_AddStringToObject( bone, "Name", m_Bones[bi].m_Name.c_str() );
-        //cJSONExt_AddFloatArrayToObject( bone, "Matrix", &m_Bones[bi].m_OffsetMatrix.m11, 16 );
-        //cJSON_AddItemToArray( bones, bone );
+        unsigned int totalbones = m_Bones.size();
 
-        cJSON* bonename = cJSON_CreateString( m_Bones[bi].m_Name.c_str() );
-        cJSON_AddItemToArray( bones, bonename );
+        cJSON_AddNumberToObject( root, "TotalBones", totalbones );
+
+        // Add the bone names and matrices.
+        cJSON* bones = cJSON_CreateArray();
+        cJSON_AddItemToObject( root, "Bones", bones );
+        for( unsigned int bi=0; bi<totalbones; bi++ )
+        {
+            //cJSON* bone = cJSON_CreateObject();
+            //cJSON_AddStringToObject( bone, "Name", m_Bones[bi].m_Name.c_str() );
+            //cJSONExt_AddFloatArrayToObject( bone, "Matrix", &m_Bones[bi].m_OffsetMatrix.m11, 16 );
+            //cJSON_AddItemToArray( bones, bone );
+
+            cJSON* bonename = cJSON_CreateString( m_Bones[bi].m_Name.c_str() );
+            cJSON_AddItemToArray( bones, bonename );
+        }
+
+        int totalnodes = 0;
+        if( m_pScene->mRootNode )
+        {
+            cJSON* nodes = cJSON_CreateObject();
+            totalnodes = ExportNodeHeirarchyDataFromScene( nodes, m_pScene->mRootNode );
+            cJSON_AddNumberToObject( root, "TotalNodes", totalnodes );
+            cJSON_AddItemToObject( root, "Nodes", nodes );
+        }
+
+        if( m_pScene->mAnimations)
+        {
+            cJSON* animationarray = cJSON_CreateArray();
+            cJSON_AddItemToObject( root, "AnimArray", animationarray );
+            ExportAnimationDataFromScene( animationarray );
+        }
     }
 
-    int totalnodes = 0;
-    if( m_pScene->mRootNode )
+    for( unsigned int mati=0; mati<nummaterials; mati++ )
     {
-        cJSON* nodes = cJSON_CreateObject();
-        totalnodes = ExportNodeHeirarchyDataFromScene( nodes, m_pScene->mRootNode );
-        cJSON_AddNumberToObject( root, "TotalNodes", totalnodes );
-        cJSON_AddItemToObject( root, "Nodes", nodes );
+        if( MaterialsInUse[mati] == false )
+            continue;
+
+        cJSON* mesh = cJSON_CreateObject();
+        cJSON_AddItemToArray( mesharray, mesh );
+
+        unsigned int totalverts = 0;
+        unsigned int totalindices = 0;
+
+        for( unsigned int mi=0; mi<nummeshes; mi++ )
+        {
+            if( m_MeshChunks[mi].m_MaterialIndex == mati )
+            {
+                totalverts += m_MeshChunks[mi].m_Vertices.size();
+                totalindices += m_MeshChunks[mi].m_Indices.size();
+            }
+        }
+
+        // Add the material index.
+        cJSON_AddNumberToObject( mesh, "Material", mati );
+
+        // Add the vert/index/bone count.
+        cJSON_AddNumberToObject( mesh, "TotalVerts", totalverts );
+        cJSON_AddNumberToObject( mesh, "TotalIndices", totalindices );
+
+        cJSONExt_AddNumberToObjectIfDiffers( mesh, "VF-uv", m_NumUVChannels, (unsigned int)0 );
+        cJSONExt_AddNumberToObjectIfDiffers( mesh, "VF-normal", m_HasNormals, false );
+        //cJSONExt_AddNumberToObjectIfDiffers( mesh, "VF-tangent", m_HasTangents, false );
+        //cJSONExt_AddNumberToObjectIfDiffers( mesh, "VF-bitangent", m_HasBitangents, false );
+        cJSONExt_AddNumberToObjectIfDiffers( mesh, "VF-color", m_HasColor, false );
+        cJSONExt_AddNumberToObjectIfDiffers( mesh, "VF-mostweights", m_MostBonesInfluences, (unsigned int)0 );
+
+        //// quick debug, write out first meshchunks verts/indices as readable text.
+        //{
+        //    unsigned int numvertsinthischunk = m_MeshChunks[0].m_Vertices.size();
+        //    unsigned int numindicesinthischunk = m_MeshChunks[0].m_Indices.size();
+
+        //    cJSON* verts = cJSON_CreateArray();
+        //    cJSON_AddItemToObject( mesh, "verts", verts );
+
+        //    for( unsigned int i=0; i<numvertsinthischunk; i++ )
+        //    {
+        //        cJSON* pos = cJSON_CreateObject();
+        //        cJSONExt_AddFloatArrayToObject( pos, "pos", &m_MeshChunks[0].m_Vertices[i].pos.x, 3 );
+        //        cJSON_AddItemToArray( verts, pos );
+        //    }
+
+        //    cJSONExt_AddIntArrayToObject( mesh, "indices", (int*)&m_MeshChunks[0].m_Indices.front(), numindicesinthischunk );
+        //}
     }
-
-    if( m_pScene->mAnimations)
-    {
-        cJSON* animationarray = cJSON_CreateArray();
-        cJSON_AddItemToObject( root, "AnimArray", animationarray );
-        ExportAnimationDataFromScene( animationarray );
-    }
-
-    //// quick debug, write out first meshchunks verts/indices as readable text.
-    //{
-    //    unsigned int numvertsinthischunk = m_MeshChunks[0].m_Vertices.size();
-    //    unsigned int numindicesinthischunk = m_MeshChunks[0].m_Indices.size();
-
-    //    cJSON* verts = cJSON_CreateArray();
-    //    cJSON_AddItemToObject( root, "verts", verts );
-
-    //    for( unsigned int i=0; i<numvertsinthischunk; i++ )
-    //    {
-    //        cJSON* pos = cJSON_CreateObject();
-    //        cJSONExt_AddFloatArrayToObject( pos, "pos", &m_MeshChunks[0].m_Vertices[i].pos.x, 3 );
-    //        cJSON_AddItemToArray( verts, pos );
-    //    }
-
-    //    cJSONExt_AddIntArrayToObject( root, "indices", (int*)&m_MeshChunks[0].m_Indices.front(), numindicesinthischunk );
-    //}
 
     // Save the json object to disk.
     //char* jsonstr = cJSON_PrintUnformatted( root );
     char* jsonstr = cJSON_Print( root );
 
     char outputfilename[260];
-    sprintf_s( outputfilename, 260, "%s.mymesh", filename );
+    size_t filenamelen = strlen(filename);
+    if( filenamelen > 7 && strcmp( &filename[filenamelen-7], ".mymesh" ) == 0 )
+        sprintf_s( outputfilename, 260, "%s", filename );
+    else
+        sprintf_s( outputfilename, 260, "%s.mymesh", filename );
     
     FILE* file;
     fopen_s( &file, outputfilename, "wb" );
@@ -430,80 +473,112 @@ void Mesh::ExportToFile(const char* filename)
     free( jsonstr );
 
     // write out a marker for start of raw data
+    // raw data format:
+    //    - for each material/mesh chunk
+    //      - vert dump(format listed in json struct)
+    //      - index dump(format based on number of verts)
+    //    - bone offset matrices
+    //    - node transforms
+    //    - animation data
     const char rawdelimiter[] = "\n#RAW";
-    fwrite( rawdelimiter, sizeof(rawdelimiter), 1, file ); 
+    fwrite( rawdelimiter, sizeof(rawdelimiter), 1, file );
 
-    // raw dump of bone matrices
-    for( unsigned int bi=0; bi<totalbones; bi++ )
+    for( unsigned int mati=0; mati<nummaterials; mati++ )
     {
-        fwrite( &m_Bones[bi].m_OffsetMatrix.m11, sizeof(MyMatrix), 1, file );
-    }
+        unsigned int totalverts = 0;
+        unsigned int totalindices = 0;
 
-    // raw dump of vertex info.
-    for( unsigned int mi=0; mi<m_MeshChunks.size(); mi++ )
-    {
-        unsigned int numvertsinthischunk = m_MeshChunks[mi].m_Vertices.size();
-
-        for( unsigned int vi=0; vi<numvertsinthischunk; vi++ )
+        for( unsigned int mi=0; mi<nummeshes; mi++ )
         {
-            fwrite( &m_MeshChunks[mi].m_Vertices[vi].pos, sizeof(Vector3), 1, file );
-
-            for( unsigned int i=0; i<m_NumUVChannels; i++ )
-                fwrite( &m_MeshChunks[mi].m_Vertices[vi].uv[i], sizeof(Vector2), 1, file );
-
-            if( m_HasNormals )
-                fwrite( &m_MeshChunks[mi].m_Vertices[vi].norm, sizeof(Vector3), 1, file );
-
-            if( m_HasTangents )
-                fwrite( &m_MeshChunks[mi].m_Vertices[vi].tangent, sizeof(Vector3), 1, file );
-
-            //if( m_HasBitangents )
-            //    fwrite( &m_MeshChunks[mi].m_Vertices[vi].bitangent, sizeof(Vector3), 1, file );
-
-            if( m_HasColor )
-                fwrite( &m_MeshChunks[mi].m_Vertices[vi].color, sizeof(unsigned char) * 4, 1, file );
-
-            for( unsigned int i=0; i<m_MostBonesInfluences; i++ )
-                fwrite( &m_MeshChunks[mi].m_Vertices[vi].boneindices[i], sizeof(unsigned char), 1, file );
-
-            for( unsigned int i=0; i<m_MostBonesInfluences; i++ )
-                fwrite( &m_MeshChunks[mi].m_Vertices[vi].weights[i], sizeof(float), 1, file );
+            if( m_MeshChunks[mi].m_MaterialIndex == mati )
+            {
+                totalverts += m_MeshChunks[mi].m_Vertices.size();
+                totalindices += m_MeshChunks[mi].m_Indices.size();
+            }
         }
-    }
 
-    // raw dump of indices.
-    int vertcount = 0;
-    for( unsigned int mi=0; mi<m_MeshChunks.size(); mi++ )
-    {
-        unsigned int numvertsinthischunk = m_MeshChunks[mi].m_Vertices.size();
+        // raw dump of vertex info.
+        for( unsigned int mi=0; mi<m_MeshChunks.size(); mi++ )
+        {
+            if( m_MeshChunks[mi].m_MaterialIndex != mati )
+                continue;
+
+            unsigned int numvertsinthischunk = m_MeshChunks[mi].m_Vertices.size();
+
+            for( unsigned int vi=0; vi<numvertsinthischunk; vi++ )
+            {
+                fwrite( &m_MeshChunks[mi].m_Vertices[vi].pos, sizeof(Vector3), 1, file );
+
+                for( unsigned int i=0; i<m_NumUVChannels; i++ )
+                    fwrite( &m_MeshChunks[mi].m_Vertices[vi].uv[i], sizeof(Vector2), 1, file );
+
+                if( m_HasNormals )
+                    fwrite( &m_MeshChunks[mi].m_Vertices[vi].norm, sizeof(Vector3), 1, file );
+
+                if( m_HasTangents )
+                    fwrite( &m_MeshChunks[mi].m_Vertices[vi].tangent, sizeof(Vector3), 1, file );
+
+                //if( m_HasBitangents )
+                //    fwrite( &m_MeshChunks[mi].m_Vertices[vi].bitangent, sizeof(Vector3), 1, file );
+
+                if( m_HasColor )
+                    fwrite( &m_MeshChunks[mi].m_Vertices[vi].color, sizeof(unsigned char) * 4, 1, file );
+
+                for( unsigned int i=0; i<m_MostBonesInfluences; i++ )
+                    fwrite( &m_MeshChunks[mi].m_Vertices[vi].boneindices[i], sizeof(unsigned char), 1, file );
+
+                for( unsigned int i=0; i<m_MostBonesInfluences; i++ )
+                    fwrite( &m_MeshChunks[mi].m_Vertices[vi].weights[i], sizeof(float), 1, file );
+            }
+        }
+
+        // raw dump of indices.
+        int vertcount = 0;
+        for( unsigned int mi=0; mi<m_MeshChunks.size(); mi++ )
+        {
+            if( m_MeshChunks[mi].m_MaterialIndex != mati )
+                continue;
+
+            unsigned int numvertsinthischunk = m_MeshChunks[mi].m_Vertices.size();
         
-        for( unsigned int i=0; i<m_MeshChunks[mi].m_Indices.size(); i++ )
-        {
-            if( totalverts <= 256 ) // write indices as unsigned chars
+            for( unsigned int i=0; i<m_MeshChunks[mi].m_Indices.size(); i++ )
             {
-                unsigned char index = vertcount + m_MeshChunks[mi].m_Indices[i];                
-                fwrite( &index, sizeof(unsigned char), 1, file );
+                if( totalverts <= 256 ) // write indices as unsigned chars
+                {
+                    unsigned char index = vertcount + m_MeshChunks[mi].m_Indices[i];                
+                    fwrite( &index, sizeof(unsigned char), 1, file );
+                }
+                else if( totalverts <= 256*256 ) // write indices as unsigned shorts
+                {
+                    unsigned short index = vertcount + m_MeshChunks[mi].m_Indices[i];
+                    fwrite( &index, sizeof(unsigned short), 1, file );
+                }
+                else // write indices as unsigned ints
+                {
+                    unsigned int index = vertcount + m_MeshChunks[mi].m_Indices[i];
+                    fwrite( &index, sizeof(unsigned int), 1, file );
+                }
             }
-            else if( totalverts <= 256*256 ) // write indices as unsigned shorts
-            {
-                unsigned short index = vertcount + m_MeshChunks[mi].m_Indices[i];
-                fwrite( &index, sizeof(unsigned short), 1, file );
-            }
-            else // write indices as unsigned ints
-            {
-                unsigned int index = vertcount + m_MeshChunks[mi].m_Indices[i];
-                fwrite( &index, sizeof(unsigned int), 1, file );
-            }
-        }
 
-        vertcount += numvertsinthischunk;
+            vertcount += numvertsinthischunk;
+        }
     }
 
-    // dump more raw data to our file
-    DumpRawNodeTransformsFromScene( file );
-    DumpRawAnimationDataFromScene( file );
+    // dump more raw data to our file, these come after all verts/indices for each mesh material chunk.
+    {
+        // raw dump of bone matrices
+        unsigned int totalbones = m_Bones.size();
+        for( unsigned int bi=0; bi<totalbones; bi++ )
+        {
+            fwrite( &m_Bones[bi].m_OffsetMatrix.m11, sizeof(MyMatrix), 1, file );
+        }
+        DumpRawNodeTransformsFromScene( file );
+        DumpRawAnimationDataFromScene( file );
+    }
 
     fclose( file );
 
     cJSON_Delete( root );
+
+    delete MaterialsInUse;
 }
