@@ -54,8 +54,37 @@ void Mesh::LoadFromFile(const char* filename)
         return;
     }
 
+    PullMaterialDataFromScene();
     PullMeshDataFromScene();
     PullBoneDataFromScene();
+}
+
+void Mesh::PullMaterialDataFromScene()
+{
+    unsigned int nummaterials = m_pScene->mNumMaterials;
+    m_Materials.resize( nummaterials );
+
+    for( unsigned int mati=0; mati<nummaterials; mati++ )
+    {
+        Material* pMaterial = &m_Materials[mati];
+        aiMaterial* pSceneMaterial = m_pScene->mMaterials[mati];
+
+        aiString matname = aiString( "unnamed" );
+        pSceneMaterial->Get( AI_MATKEY_NAME, matname );
+        pMaterial->name = matname.C_Str();
+
+        aiColor3D colorambient( 1, 1, 1 );
+        pSceneMaterial->Get( AI_MATKEY_COLOR_AMBIENT, colorambient );
+        pMaterial->colorambient.Set( colorambient.r, colorambient.g, colorambient.b, 1 );
+
+        aiColor3D colordiffuse( 1, 1, 1 );
+        pSceneMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, colordiffuse );
+        pMaterial->colordiffuse.Set( colordiffuse.r, colordiffuse.g, colordiffuse.b, 1 );
+
+        aiColor3D colorspecular( 1, 1, 1 );
+        pSceneMaterial->Get( AI_MATKEY_COLOR_SPECULAR, colorspecular );
+        pMaterial->colorspecular.Set( colorspecular.r, colorspecular.g, colorspecular.b, 1 );
+    }
 }
 
 void Mesh::PullMeshDataFromScene()
@@ -339,7 +368,7 @@ void Mesh::DumpRawAnimationDataFromScene(FILE* file)
     }
 }
 
-void Mesh::ExportToFile(const char* filename)
+void Mesh::ExportToFile(const char* filename, const char* materialdir)
 {
     if( m_pScene == 0 )
         return;
@@ -359,6 +388,8 @@ void Mesh::ExportToFile(const char* filename)
             }
         }
     }
+
+    ExportMaterials( materialdir );
 
     // Create a json object.
     cJSON* root = cJSON_CreateObject();
@@ -424,7 +455,12 @@ void Mesh::ExportToFile(const char* filename)
         }
 
         // Add the material index.
-        cJSON_AddNumberToObject( mesh, "Material", mati );
+        char materialrelativepath[260];
+        if( materialdir[0] != 0 )
+            sprintf_s( materialrelativepath, 260, "%s/%s.mymaterial", materialdir, m_Materials[mati].name.c_str() );
+        else
+            sprintf_s( materialrelativepath, 260, "%s.mymaterial", m_Materials[mati].name.c_str() );
+        cJSON_AddStringToObject( mesh, "Material", materialrelativepath );
 
         // Add the vert/index/bone count.
         cJSON_AddNumberToObject( mesh, "TotalVerts", totalverts );
@@ -581,4 +617,66 @@ void Mesh::ExportToFile(const char* filename)
     cJSON_Delete( root );
 
     delete MaterialsInUse;
+}
+
+void Mesh::ExportMaterials(const char* materialdir)
+{
+    if( m_pScene == 0 )
+        return;
+
+    unsigned int nummeshes = m_MeshChunks.size();
+    unsigned int nummaterials = m_pScene->mNumMaterials;
+
+    for( unsigned int mati=0; mati<nummaterials; mati++ )
+    {
+        bool MaterialsInUse = false;
+
+        for( unsigned int mi=0; mi<nummeshes; mi++ )
+        {
+            if( m_MeshChunks[mi].m_MaterialIndex == mati )
+            {
+                MaterialsInUse = true;
+                break;
+            }
+        }
+
+        if( MaterialsInUse )
+        {
+            char filename[255];
+
+            if( materialdir )
+                sprintf_s( filename, 255, "%s/%s.mymaterial", materialdir, m_Materials[mati].name.c_str() );
+            else
+                sprintf_s( filename, 255, "%s.mymaterial", m_Materials[mati].name.c_str() );
+
+            // Create a json object.
+            cJSON* root = cJSON_CreateObject();
+
+            cJSON* material = cJSON_CreateObject();
+            cJSON_AddItemToObject( root, "Material", material );
+
+            cJSON_AddStringToObject( material, "Name", m_Materials[mati].name.c_str() );
+            //if( m_pShaderGroup )
+            //    cJSON_AddStringToObject( material, "Shader", m_pShaderGroup->GetName() );
+            //if( m_pTextureColor )
+            //    cJSON_AddStringToObject( material, "TexColor", m_pTextureColor->m_Filename );
+
+            cJSONExt_AddFloatArrayToObject( material, "ColorAmbient", &m_Materials[mati].colorambient.x, 4 );
+            cJSONExt_AddFloatArrayToObject( material, "ColorDiffuse", &m_Materials[mati].colordiffuse.x, 4 );
+            cJSONExt_AddFloatArrayToObject( material, "ColorSpecular", &m_Materials[mati].colorspecular.x, 4 );
+            //cJSON_AddNumberToObject( material, "Shininess", m_Shininess );
+
+            // Save the json object to disk.
+            char* jsonstr = cJSON_Print( root );
+
+            FILE* file;
+            fopen_s( &file, filename, "wb" );
+            fprintf( file, jsonstr );
+            free( jsonstr );
+
+            fclose( file );
+
+            cJSON_Delete( root );
+        }
+    }
 }

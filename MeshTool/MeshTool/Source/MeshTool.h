@@ -3,13 +3,15 @@
 
 struct SettingsStruct
 {
-    const char* sourcefilename;
-    const char* outputfilename;
+    char* sourcefilename;
+    char* outputfilename;
+    char* materialdir;
 
     SettingsStruct::SettingsStruct()
     {
         sourcefilename = 0;
         outputfilename = 0;
+        materialdir = 0;
     }
 
     SettingsStruct::~SettingsStruct()

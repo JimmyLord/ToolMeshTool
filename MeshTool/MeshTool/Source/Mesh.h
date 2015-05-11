@@ -20,7 +20,10 @@ struct VertexFormat
 
 struct Material
 {
-    Vector4 color;
+    std::string name;
+    Vector4 colorambient;
+    Vector4 colordiffuse;
+    Vector4 colorspecular;
 };
 
 struct MeshChunk
@@ -54,6 +57,7 @@ public:
     std::vector<Bone> m_Bones;
     std::vector<char*> m_NodeNames;
     std::vector<MyMatrix> m_NodeTransforms;
+    std::vector<Material> m_Materials;
     //std::vector<Animation> m_Animations;
 
     unsigned int m_NumUVChannels;
@@ -68,12 +72,14 @@ public:
     ~Mesh();
 
     void LoadFromFile(const char* filename);
+    void PullMaterialDataFromScene();
     void PullMeshDataFromScene();
     void PullBoneDataFromScene();
 
     bool IsNodeABone(aiNode* pNode);
 
-    void ExportToFile(const char* filename);
+    void ExportToFile(const char* filename, const char* materialdir);
+    void ExportMaterials(const char* materialdir);
     int ExportNodeHeirarchyDataFromScene(cJSON* pParentNode, aiNode* pNode, int depth = 0);
     void ExportAnimationDataFromScene(cJSON* pAnimationArray);
     void DumpRawNodeTransformsFromScene(FILE* file);
