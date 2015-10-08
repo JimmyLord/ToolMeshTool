@@ -22,7 +22,7 @@ void Mesh::LoadFromFile(const char* filename)
     m_pScene = m_Importer.ReadFile( filename, 
                                     aiProcess_CalcTangentSpace |
                                     aiProcess_JoinIdenticalVertices |
-                                    //aiProcess_MakeLeftHanded |
+                                    aiProcess_MakeLeftHanded |
                                     aiProcess_Triangulate |
                                     //aiProcess_RemoveComponent |
                                     aiProcess_GenNormals |
@@ -43,7 +43,7 @@ void Mesh::LoadFromFile(const char* filename)
                                     //aiProcess_OptimizeMeshes |
                                     //aiProcess_OptimizeGraph |
                                     aiProcess_FlipUVs |
-                                    //aiProcess_FlipWindingOrder |
+                                    aiProcess_FlipWindingOrder |
                                     //aiProcess_SplitByBoneCount |
                                     //aiProcess_Debone |
                                     0 );
