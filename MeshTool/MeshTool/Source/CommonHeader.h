@@ -30,7 +30,11 @@
 
 #include "cJSON/cJSON.h"
 #include "lodepng/lodepng.h"
-#include "../../../assimp/code/AssimpPCH.h"
+#include "../../../assimp/include/assimp/mesh.h"
+#include "../../../assimp/include/assimp/Importer.hpp"
+#include "../../../assimp/include/assimp/scene.h"
+#include "../../../assimp/include/assimp/postprocess.h"
+//#include "../../../assimp/code/AssimpPCH.h"
 
 #include "Framework/Utility.h"
 #include "Framework/Vector.h"
