@@ -54,6 +54,10 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(BOOST_PATH);$(ProjectDir);$(ProjectDir)../../../assimp/contrib/openddlparser/include;$(ProjectDir)../../../assimp/include;$(ProjectDir)../../../assimp/contrib/rapidjson/include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_NO_OGRE_IMPORTER;OPENDDL_NO_USE_CPP11;OPENDDL_STATIC_LIBARY;ASSIMP_BUILD_NO_C4D_IMPORTER;ASSIMP_BUILD_NO_COLLADA_IMPORTER</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>MyPCHFile.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>MyPCHFile.h</ForcedIncludeFiles>
+      <AdditionalOptions>-Zm185 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -67,6 +71,9 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(BOOST_PATH);$(ProjectDir);$(ProjectDir)../../../assimp/contrib/openddlparser/include;$(ProjectDir)../../../assimp/include;$(ProjectDir)../../../assimp/contrib/rapidjson/include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_NO_OGRE_IMPORTER;OPENDDL_NO_USE_CPP11;OPENDDL_STATIC_LIBARY;ASSIMP_BUILD_NO_C4D_IMPORTER;ASSIMP_BUILD_NO_COLLADA_IMPORTER</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>MyPCHFile.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>MyPCHFile.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -227,72 +234,226 @@
     <ClCompile Include="..\..\..\assimp\code\XFileImporter.cpp" />
     <ClCompile Include="..\..\..\assimp\code\XFileParser.cpp" />
     <ClCompile Include="..\..\..\assimp\code\XGLLoader.cpp" />
-    <ClCompile Include="..\..\..\assimp\contrib\clipper\clipper.cpp" />
-    <ClCompile Include="..\..\..\assimp\contrib\ConvertUTF\ConvertUTF.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\irrXML\irrXML.cpp" />
-    <ClCompile Include="..\..\..\assimp\contrib\openddlparser\code\DDLNode.cpp" />
-    <ClCompile Include="..\..\..\assimp\contrib\openddlparser\code\OpenDDLCommon.cpp" />
-    <ClCompile Include="..\..\..\assimp\contrib\openddlparser\code\OpenDDLExport.cpp" />
-    <ClCompile Include="..\..\..\assimp\contrib\openddlparser\code\OpenDDLParser.cpp" />
-    <ClCompile Include="..\..\..\assimp\contrib\openddlparser\code\Value.cpp" />
-    <ClCompile Include="..\..\..\assimp\contrib\poly2tri\poly2tri\common\shapes.cc" />
-    <ClCompile Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\advancing_front.cc" />
-    <ClCompile Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\cdt.cc" />
-    <ClCompile Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\sweep.cc" />
-    <ClCompile Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\sweep_context.cc" />
-    <ClCompile Include="..\..\..\assimp\contrib\unzip\ioapi.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\unzip\unzip.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\adler32.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\compress.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\crc32.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\deflate.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\gzclose.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\gzlib.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\gzread.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\gzwrite.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\infback.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\inffast.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\inflate.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\inftrees.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\trees.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\uncompr.c" />
-    <ClCompile Include="..\..\..\assimp\contrib\zlib\zutil.c" />
+    <ClCompile Include="..\..\..\assimp\contrib\clipper\clipper.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\ConvertUTF\ConvertUTF.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\irrXML\irrXML.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\openddlparser\code\DDLNode.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\openddlparser\code\OpenDDLCommon.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\openddlparser\code\OpenDDLExport.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\openddlparser\code\OpenDDLParser.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\openddlparser\code\Value.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\poly2tri\poly2tri\common\shapes.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\advancing_front.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\cdt.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\sweep.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\sweep_context.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\unzip\ioapi.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\unzip\unzip.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\adler32.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\compress.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\crc32.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\deflate.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\gzclose.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\gzlib.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\gzread.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\gzwrite.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\infback.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\inffast.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\inflate.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\inftrees.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\trees.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\uncompr.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\assimp\contrib\zlib\zutil.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="MyPCHFile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\assimp\contrib\clipper\clipper.hpp" />
-    <ClInclude Include="..\..\..\assimp\contrib\ConvertUTF\ConvertUTF.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\CXMLReaderImpl.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\heapsort.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\irrArray.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\irrString.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\irrTypes.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\irrXML.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\common\shapes.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\common\utils.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\poly2tri.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\advancing_front.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\cdt.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\sweep.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\sweep_context.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\unzip\crypt.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\unzip\ioapi.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\unzip\unzip.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\crc32.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\deflate.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\gzguts.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\inffast.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\inffixed.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\inflate.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\inftrees.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\trees.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\zconf.in.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\zlib.h" />
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\zutil.h" />
+    <ClInclude Include="MyPCHFile.h" />
     <ClInclude Include="revision.h" />
     <ClInclude Include="zconf.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\assimp\contrib\zlib\README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

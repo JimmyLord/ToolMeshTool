@@ -600,105 +600,19 @@
     <ClCompile Include="..\..\..\assimp\code\C4DImporter.cpp">
       <Filter>code</Filter>
     </ClCompile>
+    <ClCompile Include="MyPCHFile.cpp">
+      <Filter>MyHacks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\assimp\contrib\clipper\clipper.hpp">
-      <Filter>contrib\clipper</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\ConvertUTF\ConvertUTF.h">
-      <Filter>contrib\ConvertUTF</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\CXMLReaderImpl.h">
-      <Filter>contrib\irrXML</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\heapsort.h">
-      <Filter>contrib\irrXML</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\irrArray.h">
-      <Filter>contrib\irrXML</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\irrString.h">
-      <Filter>contrib\irrXML</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\irrTypes.h">
-      <Filter>contrib\irrXML</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\irrXML\irrXML.h">
-      <Filter>contrib\irrXML</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\poly2tri.h">
-      <Filter>contrib\poly2tri</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\common\shapes.h">
-      <Filter>contrib\poly2tri\common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\common\utils.h">
-      <Filter>contrib\poly2tri\common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\sweep_context.h">
-      <Filter>contrib\poly2tri\sweep</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\advancing_front.h">
-      <Filter>contrib\poly2tri\sweep</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\cdt.h">
-      <Filter>contrib\poly2tri\sweep</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\poly2tri\poly2tri\sweep\sweep.h">
-      <Filter>contrib\poly2tri\sweep</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\unzip\crypt.h">
-      <Filter>contrib\unzip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\unzip\ioapi.h">
-      <Filter>contrib\unzip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\unzip\unzip.h">
-      <Filter>contrib\unzip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\crc32.h">
-      <Filter>contrib\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\deflate.h">
-      <Filter>contrib\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\gzguts.h">
-      <Filter>contrib\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\inffast.h">
-      <Filter>contrib\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\inffixed.h">
-      <Filter>contrib\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\inflate.h">
-      <Filter>contrib\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\inftrees.h">
-      <Filter>contrib\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\trees.h">
-      <Filter>contrib\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\zconf.in.h">
-      <Filter>contrib\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\zlib.h">
-      <Filter>contrib\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\assimp\contrib\zlib\zutil.h">
-      <Filter>contrib\zlib</Filter>
-    </ClInclude>
     <ClInclude Include="revision.h">
       <Filter>MyHacks</Filter>
     </ClInclude>
     <ClInclude Include="zconf.h">
       <Filter>MyHacks</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\assimp\contrib\zlib\README">
-      <Filter>contrib\zlib</Filter>
-    </None>
+    <ClInclude Include="MyPCHFile.h">
+      <Filter>MyHacks</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
