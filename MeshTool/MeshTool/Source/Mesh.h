@@ -5,7 +5,7 @@
 //   http://ogldev.atspace.co.uk/www/tutorial22/tutorial22.html
 //   http://ogldev.atspace.co.uk/www/tutorial38/tutorial38.html
 
-#define MAX_BONES_PER_VERTEX    4
+#define MAX_BONES_PER_VERTEX    4 // Must be multiple of 3 or padding added to VertexFormat struct below.
 
 struct VertexFormat
 {
