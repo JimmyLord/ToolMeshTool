@@ -10,21 +10,32 @@
 
 #else
 
+#if MYFW_WINDOWS
 #include <SDKDDKVer.h>
+#else
+#define strcpy_s(a,b,c)             strcpy(a,c)
+#define sprintf_s                   snprintf
+#endif
 
 #endif
 
 #include <stdio.h>
+#if MYFW_WINDOWS
 #include <tchar.h>
+#endif
 #include <string.h>
+#if MYFW_WINDOWS
 #include <conio.h>
+#endif
 #include <stdlib.h>
 #include <iostream>
 #include <list>
 #include <assert.h>
 #include <vector>
 
+#if MYFW_WINDOWS
 #include <boost/filesystem.hpp>
+#endif
 
 #define PI 3.1415926535897932384626433832795f
 

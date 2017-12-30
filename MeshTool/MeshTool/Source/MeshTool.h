@@ -7,14 +7,14 @@ struct SettingsStruct
     char* outputfilename;
     char* materialdir;
 
-    SettingsStruct::SettingsStruct()
+    SettingsStruct()
     {
         sourcefilename = 0;
         outputfilename = 0;
         materialdir = 0;
     }
 
-    SettingsStruct::~SettingsStruct()
+    ~SettingsStruct()
     {
     }
 };

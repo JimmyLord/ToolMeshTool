@@ -129,16 +129,16 @@ static char *print_number(cJSON *item)
 	if (fabs(((double)item->valueint)-d)<=DBL_EPSILON && d<=INT_MAX && d>=INT_MIN)
 	{
 		str=(char*)cJSON_malloc(21);	/* 2^64+1 can be represented in 21 chars. */
-		if (str) sprintf_s(str,21,"%d",item->valueint);
+		if (str) sprintf(str,"%d",item->valueint);
 	}
 	else
 	{
 		str=(char*)cJSON_malloc(64);	/* This is a nice tradeoff. */
 		if (str)
 		{
-			if (fabs(floor(d)-d)<=DBL_EPSILON)			sprintf_s(str,64,"%.0f",d);
-			else if (fabs(d)<1.0e-6 || fabs(d)>1.0e9)	sprintf_s(str,64,"%e",d);
-			else										sprintf_s(str,64,"%f",d);
+			if (fabs(floor(d)-d)<=DBL_EPSILON)			sprintf(str,"%.0f",d);
+			else if (fabs(d)<1.0e-6 || fabs(d)>1.0e9)	sprintf(str,"%e",d);
+			else										sprintf(str,"%f",d);
 		}
 	}
 	return str;
@@ -171,14 +171,14 @@ static const char *parse_string(cJSON *item,const char *str)
 				case 'r': *ptr2++='\r';	break;
 				case 't': *ptr2++='\t';	break;
 				case 'u':	 /* transcode utf16 to utf8. */
-					sscanf_s(ptr+1,"%4x",&uc);ptr+=4;	/* get the unicode char. */
+					sscanf(ptr+1,"%4x",&uc);ptr+=4;	/* get the unicode char. */
 
 					if ((uc>=0xDC00 && uc<=0xDFFF) || uc==0)	break;	// check for invalid.
 
 					if (uc>=0xD800 && uc<=0xDBFF)	// UTF16 surrogate pairs.
 					{
 						if (ptr[1]!='\\' || ptr[2]!='u')	break;	// missing second-half of surrogate.
-						sscanf_s(ptr+3,"%4x",&uc2);ptr+=6;
+						sscanf(ptr+3,"%4x",&uc2);ptr+=6;
 						if (uc2<0xDC00 || uc2>0xDFFF)		break;	// invalid second-half of surrogate.
 						uc=0x10000 | ((uc&0x3FF)<<10) | (uc2&0x3FF);
 					}
