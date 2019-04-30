@@ -46,18 +46,21 @@
     <ProjectGuid>{5B245CF5-FF03-4CAD-A93D-7696C979FA36}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>MeshTool</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -84,15 +87,15 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;MYFW_WINDOWS;_CONSOLE;_DEBUG</PreprocessorDefinitions>
       <PrecompiledHeaderFile>CommonHeader.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(BOOST_PATH);Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_PATH);Source;$(SolutionDir)Libs;$(SolutionDir)../assimp/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(BOOST_PATH)\lib32-msvc-10.0;$(SolutionDir)\Output\assimp$(Platform)$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(BOOST_PATH)/stage/lib;$(SolutionDir)\Output\assimp$(Platform)$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -102,17 +105,17 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;MYFW_WINDOWS;_CONSOLE;NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeaderFile>CommonHeader.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(BOOST_PATH);Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_PATH);Source;$(SolutionDir)Libs;$(SolutionDir)../assimp/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>assimp.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(BOOST_PATH)\lib32-msvc-10.0;$(SolutionDir)\Output\assimp$(Platform)$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(BOOST_PATH)/stage/lib;$(SolutionDir)\Output\assimp$(Platform)$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
