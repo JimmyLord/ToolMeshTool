@@ -678,6 +678,7 @@
     <ClInclude Include="..\..\..\assimp\code\XFileImporter.h" />
     <ClInclude Include="..\..\..\assimp\code\XFileParser.h" />
     <ClInclude Include="..\..\..\assimp\code\XGLLoader.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="MyPCHFile.h" />
     <ClInclude Include="revision.h" />
     <ClInclude Include="zconf.h" />
@@ -689,6 +690,7 @@
     <None Include="..\..\..\assimp\code\glTFAsset.inl" />
     <None Include="..\..\..\assimp\code\glTFAssetWriter.inl" />
     <None Include="..\..\..\assimp\code\makefile.mingw" />
+    <None Include="..\..\..\assimp\include\assimp\config.h.in" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\assimp\code\CMakeLists.txt" />

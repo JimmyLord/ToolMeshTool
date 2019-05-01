@@ -20,9 +20,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\CommonHeader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\cJSON\cJSON.cpp">
       <Filter>Source Files\cJSON</Filter>
     </ClCompile>
@@ -41,11 +38,11 @@
     <ClCompile Include="Source\Framework\cJSONHelpers.cpp">
       <Filter>Source Files\Framework</Filter>
     </ClCompile>
+    <ClCompile Include="Source\MeshToolPCH.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\CommonHeader.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\cJSON\cJSON.h">
       <Filter>Source Files\cJSON</Filter>
     </ClInclude>
@@ -70,8 +67,12 @@
     <ClInclude Include="Source\Framework\cJSONHelpers.h">
       <Filter>Source Files\Framework</Filter>
     </ClInclude>
+    <ClInclude Include="Source\MeshToolPCH.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\todo.txt" />
+    <None Include="..\..\README.md" />
   </ItemGroup>
 </Project>

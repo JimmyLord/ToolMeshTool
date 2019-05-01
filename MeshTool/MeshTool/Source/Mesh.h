@@ -1,7 +1,7 @@
 #ifndef __MESH_H__
 #define __MESH_H__
 
-// core of this learned from:
+// Core of this learned from:
 //   http://ogldev.atspace.co.uk/www/tutorial22/tutorial22.html
 //   http://ogldev.atspace.co.uk/www/tutorial38/tutorial38.html
 
@@ -14,16 +14,16 @@ struct VertexFormat
     Vector3 norm;
     Vector3 tangent;
     unsigned char color[4];
-    unsigned char boneindices[MAX_BONES_PER_VERTEX]; // max 256 bones. engine code has max limit of 100 ATM anyway.
+    unsigned char boneIndices[MAX_BONES_PER_VERTEX]; // Max 256 bones. Engine code has max limit of 100 ATM anyway.
     float weights[MAX_BONES_PER_VERTEX];
 };
 
 struct Material
 {
     std::string name;
-    Vector4 colorambient;
-    Vector4 colordiffuse;
-    Vector4 colorspecular;
+    Vector4 colorAmbient;
+    Vector4 colorDiffuse;
+    Vector4 colorSpecular;
 };
 
 struct MeshChunk
@@ -78,8 +78,8 @@ public:
 
     bool IsNodeABone(aiNode* pNode);
 
-    void ExportToFile(const char* filename, const char* materialdir);
-    void ExportMaterials(const char* materialdir);
+    void ExportToFile(const char* filename, const char* materialDir);
+    void ExportMaterials(const char* materialDir);
     int ExportNodeHeirarchyDataFromScene(cJSON* pParentNode, aiNode* pNode, int depth = 0);
     void ExportAnimationDataFromScene(cJSON* pAnimationArray);
     void DumpRawNodeTransformsFromScene(FILE* file);

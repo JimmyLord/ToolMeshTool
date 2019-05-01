@@ -1,17 +1,20 @@
-#include "CommonHeader.h"
+#include "MeshToolPCH.h"
+
+#include "MeshTool.h"
+#include "Mesh.h"
 
 int main(int argc, char** argv)
 {
     SettingsStruct settings;
 
-    bool invalidargs = MeshTool_ParseArgs( argc, argv, &settings );
-    if( invalidargs == true )
+    bool invalidArgs = MeshTool_ParseArgs( argc, argv, &settings );
+    if( invalidArgs == true )
         return 1;
 
     Mesh* pMesh = new Mesh;
 
-    pMesh->LoadFromFile( settings.sourcefilename );
-    pMesh->ExportToFile( settings.outputfilename, settings.materialdir );
+    pMesh->LoadFromFile( settings.sourceFilename );
+    pMesh->ExportToFile( settings.outputFilename, settings.materialDir );
 
     delete pMesh;
 
@@ -26,42 +29,42 @@ int main(int argc, char** argv)
 
 bool MeshTool_ParseArgs(int argc, char** argv, SettingsStruct* pSettings)
 {
-    bool invalidargs = false;
+    bool invalidArgs = false;
 
     if( argc < 2 )
-        invalidargs = true;
+        invalidArgs = true;
 
     for( int i=1; i<argc; i++ )
     {
         // treat the first arg as -s if - isn't the first character.
         if( i == 1 && strncmp( argv[i], "-", 1 ) != 0 )
         {
-            pSettings->sourcefilename = argv[i];
+            pSettings->sourceFilename = argv[i];
         }
         if( ( strcmp( argv[i], "-s" ) == 0 || strcmp( argv[i], "-source" ) == 0 ) )
         {
             if( i+1 >= argc )
-                invalidargs = true;
+                invalidArgs = true;
             else
-                pSettings->sourcefilename = argv[i+1];
+                pSettings->sourceFilename = argv[i+1];
         }
         if( ( strcmp( argv[i], "-o" ) == 0 || strcmp( argv[i], "-output" ) == 0 ) )
         {
             if( i+1 >= argc )
-                invalidargs = true;
+                invalidArgs = true;
             else
-                pSettings->outputfilename = argv[i+1];
+                pSettings->outputFilename = argv[i+1];
         }
         if( ( strcmp( argv[i], "-m" ) == 0 || strcmp( argv[i], "-materialdir" ) == 0 ) )
         {
             if( i+1 >= argc )
-                invalidargs = true;
+                invalidArgs = true;
             else
-                pSettings->materialdir = argv[i+1];
+                pSettings->materialDir = argv[i+1];
         }
     }
 
-    if( invalidargs )
+    if( invalidArgs )
     {
         printf( "Invalid arguments\n" );
         printf( "\n" );
@@ -71,41 +74,42 @@ bool MeshTool_ParseArgs(int argc, char** argv, SettingsStruct* pSettings)
         return true;
     }
     
-    if( pSettings->sourcefilename == 0 )
+    if( pSettings->sourceFilename == nullptr )
     {
         printf( "Source filename required - use -s\n" );
         return true;
     }
     
-    if( pSettings->outputfilename == 0 )
+    if( pSettings->outputFilename == nullptr )
     {
-        pSettings->outputfilename = pSettings->sourcefilename;
+        pSettings->outputFilename = pSettings->sourceFilename;
         //printf( "Output filename required - use -o\n" );
         //return true;
     }
 
-    if( pSettings->materialdir == 0 )
+    if( pSettings->materialDir == nullptr )
     {
-        pSettings->materialdir = new char[strlen(pSettings->sourcefilename) + 1];
-        strcpy( pSettings->materialdir, pSettings->sourcefilename );
+        int bufferSize = strlen(pSettings->sourceFilename) + 1;
+        pSettings->materialDir = new char[bufferSize];
+        strcpy_s( pSettings->materialDir, bufferSize, pSettings->sourceFilename );
 
-        int len = (int)strlen( pSettings->materialdir );
+        int len = (int)strlen( pSettings->materialDir );
         int i;
         for( i=len; i>=0; i-- )
         {
-            if( pSettings->materialdir[i] == '/' || pSettings->materialdir[i] == '\\' )
+            if( pSettings->materialDir[i] == '/' || pSettings->materialDir[i] == '\\' )
             {
                 break;
             }
         }
-        pSettings->materialdir[i] = 0;
+        pSettings->materialDir[i] = '\0';
     }
 
     {
         printf( "Starting\n" );
-        printf( "Source filename -> %s\n", pSettings->sourcefilename );
-        printf( "Output filename -> %s\n", pSettings->outputfilename );
-        printf( "Materials Output Dir -> %s\n", pSettings->materialdir );
+        printf( "Source filename -> %s\n", pSettings->sourceFilename );
+        printf( "Output filename -> %s\n", pSettings->outputFilename );
+        printf( "Materials Output Dir -> %s\n", pSettings->materialDir );
     }
 
 	return false;

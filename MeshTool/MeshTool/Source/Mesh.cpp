@@ -1,8 +1,10 @@
-#include "CommonHeader.h"
+#include "MeshToolPCH.h"
+
+#include "Mesh.h"
 
 Mesh::Mesh()
 {
-    m_pScene = 0;
+    m_pScene = nullptr;
 
     m_NumUVChannels = 0;
     m_HasNormals = false;
@@ -18,7 +20,7 @@ Mesh::~Mesh()
 
 void Mesh::LoadFromFile(const char* filename)
 {
-    // load a model into an assimp scene.
+    // Load a model into an assimp scene.
     m_pScene = m_Importer.ReadFile( filename, 
                                     aiProcess_CalcTangentSpace |
                                     aiProcess_JoinIdenticalVertices |
@@ -29,7 +31,7 @@ void Mesh::LoadFromFile(const char* filename)
                                     //aiProcess_GenSmoothNormals |
                                     //aiProcess_SplitLargeMeshes |
                                     //aiProcess_PreTransformVertices |
-                                    aiProcess_LimitBoneWeights |           // limit of 4 bones influencing vertex.
+                                    aiProcess_LimitBoneWeights |           // Limit of 4 bones influencing vertex.
                                     //aiProcess_ValidateDataStructure |
                                     //aiProcess_ImproveCacheLocality |
                                     //aiProcess_RemoveRedundantMaterials |
@@ -48,7 +50,7 @@ void Mesh::LoadFromFile(const char* filename)
                                     //aiProcess_Debone |
                                     0 );
 
-    if( m_pScene == 0 )
+    if( m_pScene == nullptr )
     {
         printf( "Importer.ReadFile(%s): %s\n", filename, m_Importer.GetErrorString() );
         return;
@@ -61,64 +63,64 @@ void Mesh::LoadFromFile(const char* filename)
 
 void Mesh::PullMaterialDataFromScene()
 {
-    unsigned int nummaterials = m_pScene->mNumMaterials;
-    m_Materials.resize( nummaterials );
+    unsigned int numMaterials = m_pScene->mNumMaterials;
+    m_Materials.resize( numMaterials );
 
-    for( unsigned int mati=0; mati<nummaterials; mati++ )
+    for( unsigned int mati=0; mati<numMaterials; mati++ )
     {
         Material* pMaterial = &m_Materials[mati];
         aiMaterial* pSceneMaterial = m_pScene->mMaterials[mati];
 
-        aiString matname = aiString( "unnamed" );
-        pSceneMaterial->Get( AI_MATKEY_NAME, matname );
-        pMaterial->name = matname.C_Str();
+        aiString matName = aiString( "unnamed" );
+        pSceneMaterial->Get( AI_MATKEY_NAME, matName );
+        pMaterial->name = matName.C_Str();
 
-        aiColor3D colorambient( 1, 1, 1 );
-        pSceneMaterial->Get( AI_MATKEY_COLOR_AMBIENT, colorambient );
-        pMaterial->colorambient.Set( colorambient.r, colorambient.g, colorambient.b, 1 );
+        aiColor3D colorAmbient( 1, 1, 1 );
+        pSceneMaterial->Get( AI_MATKEY_COLOR_AMBIENT, colorAmbient );
+        pMaterial->colorAmbient.Set( colorAmbient.r, colorAmbient.g, colorAmbient.b, 1 );
 
-        aiColor3D colordiffuse( 1, 1, 1 );
-        pSceneMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, colordiffuse );
-        pMaterial->colordiffuse.Set( colordiffuse.r, colordiffuse.g, colordiffuse.b, 1 );
+        aiColor3D colorDiffuse( 1, 1, 1 );
+        pSceneMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, colorDiffuse );
+        pMaterial->colorDiffuse.Set( colorDiffuse.r, colorDiffuse.g, colorDiffuse.b, 1 );
 
-        aiColor3D colorspecular( 1, 1, 1 );
-        pSceneMaterial->Get( AI_MATKEY_COLOR_SPECULAR, colorspecular );
-        pMaterial->colorspecular.Set( colorspecular.r, colorspecular.g, colorspecular.b, 1 );
+        aiColor3D colorSpecular( 1, 1, 1 );
+        pSceneMaterial->Get( AI_MATKEY_COLOR_SPECULAR, colorSpecular );
+        pMaterial->colorSpecular.Set( colorSpecular.r, colorSpecular.g, colorSpecular.b, 1 );
     }
 }
 
 void Mesh::PullMeshDataFromScene()
 {
-    unsigned int nummeshes = m_pScene->mNumMeshes;
-    m_MeshChunks.resize( nummeshes );
+    unsigned int numMeshes = m_pScene->mNumMeshes;
+    m_MeshChunks.resize( numMeshes );
 
     printf( "===\n" );
-    printf( "nummeshes: %d\n", nummeshes );
+    printf( "numMeshes: %d\n", numMeshes );
 
-    // Initialize the meshes in the scene one by one
-    for( unsigned int mi=0; mi<nummeshes; mi++ )
+    // Initialize the meshes in the scene one by one.
+    for( unsigned int mi=0; mi<numMeshes; mi++ )
     {
         aiMesh* pMesh = m_pScene->mMeshes[mi];
 
         printf( "mesh %d:\n", mi );
-        //printf( "  numverts: %d\n", pMesh->mNumVertices );
-        //printf( "  numfaces: %d\n", pMesh->mNumFaces );
-        //printf( "  numbones: %d\n", pMesh->mNumBones );
+        //printf( "  numVerts: %d\n", pMesh->mNumVertices );
+        //printf( "  numFaces: %d\n", pMesh->mNumFaces );
+        //printf( "  numBones: %d\n", pMesh->mNumBones );
 
         MeshChunk* pMeshChunk = &m_MeshChunks[mi];
 
         pMeshChunk->m_MaterialIndex = pMesh->mMaterialIndex;
         
-        // deal with verts
+        // Deal with verts.
         {
-            unsigned int numverts = pMesh->mNumVertices;
+            unsigned int numVerts = pMesh->mNumVertices;
 
             // Reserve enough space in our vector for the vertices.
-            pMeshChunk->m_Vertices.resize( numverts );
+            pMeshChunk->m_Vertices.resize( numVerts );
 
-            for( unsigned int vi=0; vi<numverts; vi++ )
+            for( unsigned int vi=0; vi<numVerts; vi++ )
             {
-                // typecasting should be safe as long as aiVector3D is simply 3 floats in order.
+                // Typecasting should be safe as long as aiVector3D is simply 3 floats in order.
                 memset( &pMeshChunk->m_Vertices[vi], 0, sizeof(VertexFormat) );
 
                 if( pMesh->HasPositions() )
@@ -157,14 +159,14 @@ void Mesh::PullMeshDataFromScene()
             }
         }
 
-        // deal with indices
+        // Deal with indices.
         {
-            unsigned int numfaces = pMesh->mNumFaces;
-            unsigned int numindices = numfaces * 3;
+            unsigned int numFaces = pMesh->mNumFaces;
+            unsigned int numIndices = numFaces * 3;
 
-            pMeshChunk->m_Indices.resize( numindices );
+            pMeshChunk->m_Indices.resize( numIndices );
 
-            for( unsigned int fi=0; fi<numfaces; fi++ )
+            for( unsigned int fi=0; fi<numFaces; fi++ )
             {
                 aiFace& Face = pMesh->mFaces[fi];
 
@@ -180,37 +182,37 @@ void Mesh::PullMeshDataFromScene()
 
 void Mesh::PullBoneDataFromScene()
 {
-    // deal with bones
-    unsigned int nummeshes = m_pScene->mNumMeshes;
+    // Deal with bones.
+    unsigned int numMeshes = m_pScene->mNumMeshes;
 
-    for( unsigned int mi=0; mi<nummeshes; mi++ )
+    for( unsigned int mi=0; mi<numMeshes; mi++ )
     {
         aiMesh* pMesh = m_pScene->mMeshes[mi];
 
-        unsigned int numbones = pMesh->mNumBones;
+        unsigned int numBones = pMesh->mNumBones;
 
-        for( unsigned int bi=0; bi<numbones; bi++ )
+        for( unsigned int bi=0; bi<numBones; bi++ )
         {
             Bone bone;
             bone.m_Name = pMesh->mBones[bi]->mName.data;
-            bone.m_OffsetMatrix = *(MyMatrix*)&pMesh->mBones[bi]->mOffsetMatrix; // typecasting should be safe as long as aiMatrix4x4 is simply 16 floats in order.
+            bone.m_OffsetMatrix = *(MyMatrix*)&pMesh->mBones[bi]->mOffsetMatrix; // Typecasting should be safe as long as aiMatrix4x4 is simply 16 floats in order.
             bone.m_OffsetMatrix.Transpose();
 
-            // check that all bones influence at least one vertex.
+            // Check that all bones influence at least one vertex.
             assert( pMesh->mBones[bi]->mNumWeights > 0 );
 
-            // check if this bone is already in our list.
-            assert( numbones <= 256 );
-            unsigned char ourboneindex = m_Bones.size();
+            // Check if this bone is already in our list.
+            assert( numBones <= 256 );
+            unsigned char ourBoneIndex = static_cast<unsigned char>( m_Bones.size() );
             for( unsigned char i=0; i<m_Bones.size(); i++ )
             {
                 if( m_Bones[i].m_Name == bone.m_Name )
                 {
-                    ourboneindex = i;
+                    ourBoneIndex = i;
                     assert( m_Bones[i].m_OffsetMatrix == bone.m_OffsetMatrix );
                 }
             }
-            if( ourboneindex == m_Bones.size() )
+            if( ourBoneIndex == m_Bones.size() )
                 m_Bones.push_back( bone );
 
             for( unsigned int wi=0; wi<pMesh->mBones[bi]->mNumWeights; wi++ )
@@ -218,12 +220,12 @@ void Mesh::PullBoneDataFromScene()
                 unsigned int vi = pMesh->mBones[bi]->mWeights[wi].mVertexId;
                 float weight = pMesh->mBones[bi]->mWeights[wi].mWeight;
 
-                // add this bone weighting to the vertex if necessary.
+                // Add this bone weighting to the vertex if necessary.
                 for( unsigned int bwi=0; bwi<MAX_BONES_PER_VERTEX; bwi++ )
                 {
                     if( m_MeshChunks[mi].m_Vertices[vi].weights[bwi] == 0 )
                     {
-                        m_MeshChunks[mi].m_Vertices[vi].boneindices[bwi] = ourboneindex;
+                        m_MeshChunks[mi].m_Vertices[vi].boneIndices[bwi] = ourBoneIndex;
                         m_MeshChunks[mi].m_Vertices[vi].weights[bwi] = weight;
 
                         if( bwi+1 > m_MostBonesInfluences )
@@ -232,7 +234,7 @@ void Mesh::PullBoneDataFromScene()
                         break;
                     }
 
-                    // if this assert trips, then too many bones influence this vertex.
+                    // If this assert trips, then too many bones influence this vertex.
                     assert( bwi < MAX_BONES_PER_VERTEX );
                 }
             }
@@ -262,8 +264,8 @@ int Mesh::ExportNodeHeirarchyDataFromScene(cJSON* pParentNode, aiNode* pNode, in
     transform.Transpose();
     m_NodeTransforms.push_back( transform );
 
-    cJSON* thisnode = cJSON_CreateObject();
-    cJSON_AddItemToObject( pParentNode, pNode->mName.data, thisnode );
+    cJSON* thisNode = cJSON_CreateObject();
+    cJSON_AddItemToObject( pParentNode, pNode->mName.data, thisNode );
 
     //for( int i=0; i<depth; i++ )
     //    printf( " " );
@@ -271,7 +273,7 @@ int Mesh::ExportNodeHeirarchyDataFromScene(cJSON* pParentNode, aiNode* pNode, in
 
     for( unsigned int ni=0; ni<pNode->mNumChildren; ni++ )
     {
-        count += ExportNodeHeirarchyDataFromScene( thisnode, pNode->mChildren[ni], depth+1 );
+        count += ExportNodeHeirarchyDataFromScene( thisNode, pNode->mChildren[ni], depth+1 );
     }
 
     return count;
@@ -279,9 +281,9 @@ int Mesh::ExportNodeHeirarchyDataFromScene(cJSON* pParentNode, aiNode* pNode, in
 
 void Mesh::ExportAnimationDataFromScene(cJSON* pAnimationArray)
 {
-    unsigned int numanims = m_pScene->mNumAnimations;
+    unsigned int numAnims = m_pScene->mNumAnimations;
 
-    for( unsigned int ai=0; ai<numanims; ai++ )
+    for( unsigned int ai=0; ai<numAnims; ai++ )
     {
         cJSON* animation = cJSON_CreateObject();
         cJSON_AddItemToArray( pAnimationArray, animation );
@@ -300,24 +302,24 @@ void Mesh::DumpRawNodeTransformsFromScene(FILE* file)
 
 void Mesh::DumpRawAnimationDataFromScene(FILE* file)
 {
-    unsigned int numanims = m_pScene->mNumAnimations;
+    unsigned int numAnims = m_pScene->mNumAnimations;
 
     // Anim data is typecast to int* in mesh loader, so must land on 4-byte boundary.
     int byteswritten = ftell( file );
     assert( byteswritten % 4 == 0 );
 
-    for( unsigned int ai=0; ai<numanims; ai++ )
+    for( unsigned int ai=0; ai<numAnims; ai++ )
     {
-        unsigned int numchannels = m_pScene->mAnimations[ai]->mNumChannels;
+        unsigned int numChannels = m_pScene->mAnimations[ai]->mNumChannels;
 
-        for( unsigned int ci=0; ci<numchannels; ci++ )
+        for( unsigned int ci=0; ci<numChannels; ci++ )
         {
             aiNodeAnim* pNodeAnim = m_pScene->mAnimations[ai]->mChannels[ci];
 
-            // write out the full node name.
+            // Write out the full node name.
             //fwrite( &pNodeAnim->mNodeName.length, sizeof(unsigned int), 1, file );
             //fwrite( &pNodeAnim->mNodeName.data, sizeof(char), pNodeAnim->mNodeName.length, file );
-            // write out the node index instead of the full node name.
+            // Write out the node index instead of the full node name.
             unsigned int ni;
             for( ni=0; ni<m_NodeNames.size(); ni++ )
             {
@@ -327,9 +329,9 @@ void Mesh::DumpRawAnimationDataFromScene(FILE* file)
             assert( ni != m_NodeNames.size() );
             fwrite( &ni, sizeof(unsigned int), 1, file );
 
-            // TODO: eliminate duplicate keys
+            // TODO: Eliminate duplicate keys.
 
-            // write out all positions.  time as a float, value as vector3.
+            // Write out all positions.  time as a float, value as vector3.
             fwrite( &pNodeAnim->mNumPositionKeys, sizeof(unsigned int), 1, file );
             for( unsigned int ki=0; ki<pNodeAnim->mNumPositionKeys; ki++ )
             {
@@ -341,7 +343,7 @@ void Mesh::DumpRawAnimationDataFromScene(FILE* file)
                 fwrite( &pNodeAnim->mPositionKeys[ki].mValue, sizeof(float)*3, 1, file );
             }
 
-            // write out all rotations.  time as a float, value as quaternion.
+            // Write out all rotations.  time as a float, value as quaternion.
             fwrite( &pNodeAnim->mNumRotationKeys, sizeof(unsigned int), 1, file );
             for( unsigned int ki=0; ki<pNodeAnim->mNumRotationKeys; ki++ )
             {
@@ -356,7 +358,7 @@ void Mesh::DumpRawAnimationDataFromScene(FILE* file)
                 fwrite( &pNodeAnim->mRotationKeys[ki].mValue.w, sizeof(float), 1, file );
             }
 
-            // write out all scales.  time as a float, value as vector3.
+            // Write out all scales.  time as a float, value as vector3.
             fwrite( &pNodeAnim->mNumScalingKeys, sizeof(unsigned int), 1, file );
             for( unsigned int ki=0; ki<pNodeAnim->mNumScalingKeys; ki++ )
             {
@@ -374,27 +376,27 @@ void Mesh::DumpRawAnimationDataFromScene(FILE* file)
 
 void AddPaddingToReachNext4ByteBoundary(FILE* file)
 {
-    int byteswritten = ftell( file );
-    while( byteswritten % 4 != 0 )
+    int bytesWritten = ftell( file );
+    while( bytesWritten % 4 != 0 )
     {
         fwrite( " ", 1, 1, file );
-        byteswritten++;
+        bytesWritten++;
     }
 }
 
-void Mesh::ExportToFile(const char* filename, const char* materialdir)
+void Mesh::ExportToFile(const char* filename, const char* materialDir)
 {
-    if( m_pScene == 0 )
+    if( m_pScene == nullptr )
         return;
 
-    unsigned int nummeshes = m_MeshChunks.size();
-    unsigned int nummaterials = m_pScene->mNumMaterials;
+    unsigned int numMeshes = m_MeshChunks.size();
+    unsigned int numMaterials = m_pScene->mNumMaterials;
 
-    bool* MaterialsInUse = new bool[nummaterials];
-    memset( MaterialsInUse, 0, sizeof(bool)*nummaterials );
-    for( unsigned int mati=0; mati<nummaterials; mati++ )
+    bool* MaterialsInUse = new bool[numMaterials];
+    memset( MaterialsInUse, 0, sizeof(bool)*numMaterials );
+    for( unsigned int mati=0; mati<numMaterials; mati++ )
     {
-        for( unsigned int mi=0; mi<nummeshes; mi++ )
+        for( unsigned int mi=0; mi<numMeshes; mi++ )
         {
             if( m_MeshChunks[mi].m_MaterialIndex == mati )
             {
@@ -403,82 +405,82 @@ void Mesh::ExportToFile(const char* filename, const char* materialdir)
         }
     }
 
-    ExportMaterials( materialdir );
+    ExportMaterials( materialDir );
 
     // Create a json object.
     cJSON* root = cJSON_CreateObject();
 
-    cJSON* mesharray = cJSON_CreateArray();
-    cJSON_AddItemToObject( root, "Meshes", mesharray );
+    cJSON* meshArray = cJSON_CreateArray();
+    cJSON_AddItemToObject( root, "Meshes", meshArray );
 
-    // export bones/nodes/anims commonly, not once per material
+    // Export bones/nodes/anims commonly, not once per material.
     {
-        unsigned int totalbones = m_Bones.size();
+        unsigned int totalBones = m_Bones.size();
 
-        cJSON_AddNumberToObject( root, "TotalBones", totalbones );
+        cJSON_AddNumberToObject( root, "TotalBones", totalBones );
 
         // Add the bone names and matrices.
         cJSON* bones = cJSON_CreateArray();
         cJSON_AddItemToObject( root, "Bones", bones );
-        for( unsigned int bi=0; bi<totalbones; bi++ )
+        for( unsigned int bi=0; bi<totalBones; bi++ )
         {
             //cJSON* bone = cJSON_CreateObject();
             //cJSON_AddStringToObject( bone, "Name", m_Bones[bi].m_Name.c_str() );
             //cJSONExt_AddFloatArrayToObject( bone, "Matrix", &m_Bones[bi].m_OffsetMatrix.m11, 16 );
             //cJSON_AddItemToArray( bones, bone );
 
-            cJSON* bonename = cJSON_CreateString( m_Bones[bi].m_Name.c_str() );
-            cJSON_AddItemToArray( bones, bonename );
+            cJSON* boneName = cJSON_CreateString( m_Bones[bi].m_Name.c_str() );
+            cJSON_AddItemToArray( bones, boneName );
         }
 
-        int totalnodes = 0;
+        int totalNodes = 0;
         if( m_pScene->mRootNode )
         {
             cJSON* nodes = cJSON_CreateObject();
-            totalnodes = ExportNodeHeirarchyDataFromScene( nodes, m_pScene->mRootNode );
-            cJSON_AddNumberToObject( root, "TotalNodes", totalnodes );
+            totalNodes = ExportNodeHeirarchyDataFromScene( nodes, m_pScene->mRootNode );
+            cJSON_AddNumberToObject( root, "TotalNodes", totalNodes );
             cJSON_AddItemToObject( root, "Nodes", nodes );
         }
 
         if( m_pScene->mAnimations)
         {
-            cJSON* animationarray = cJSON_CreateArray();
-            cJSON_AddItemToObject( root, "AnimArray", animationarray );
-            ExportAnimationDataFromScene( animationarray );
+            cJSON* animationArray = cJSON_CreateArray();
+            cJSON_AddItemToObject( root, "AnimArray", animationArray );
+            ExportAnimationDataFromScene( animationArray );
         }
     }
 
-    for( unsigned int mati=0; mati<nummaterials; mati++ )
+    for( unsigned int mati=0; mati<numMaterials; mati++ )
     {
         if( MaterialsInUse[mati] == false )
             continue;
 
         cJSON* mesh = cJSON_CreateObject();
-        cJSON_AddItemToArray( mesharray, mesh );
+        cJSON_AddItemToArray( meshArray, mesh );
 
-        unsigned int totalverts = 0;
-        unsigned int totalindices = 0;
+        unsigned int totalVerts = 0;
+        unsigned int totalIndices = 0;
 
-        for( unsigned int mi=0; mi<nummeshes; mi++ )
+        for( unsigned int mi=0; mi<numMeshes; mi++ )
         {
             if( m_MeshChunks[mi].m_MaterialIndex == mati )
             {
-                totalverts += m_MeshChunks[mi].m_Vertices.size();
-                totalindices += m_MeshChunks[mi].m_Indices.size();
+                totalVerts += m_MeshChunks[mi].m_Vertices.size();
+                totalIndices += m_MeshChunks[mi].m_Indices.size();
             }
         }
 
         // Add the material index.
-        char materialrelativepath[260];
-        if( materialdir[0] != 0 )
-            sprintf_s( materialrelativepath, 260, "%s/%s.mymaterial", materialdir, m_Materials[mati].name.c_str() );
+        char materialRelativePath[260];
+        if( materialDir[0] != '\0' )
+            sprintf_s( materialRelativePath, 260, "%s/%s.mymaterial", materialDir, m_Materials[mati].name.c_str() );
         else
-            sprintf_s( materialrelativepath, 260, "%s.mymaterial", m_Materials[mati].name.c_str() );
-        cJSON_AddStringToObject( mesh, "Material", materialrelativepath );
+            sprintf_s( materialRelativePath, 260, "%s.mymaterial", m_Materials[mati].name.c_str() );
+        cJSON_AddStringToObject( mesh, "Material", materialRelativePath );
 
         // Add the vert/index/bone count.
-        cJSON_AddNumberToObject( mesh, "TotalVerts", totalverts );
-        cJSON_AddNumberToObject( mesh, "TotalIndices", totalindices );
+        cJSON_AddNumberToObject( mesh, "TotalVerts", totalVerts );
+        cJSON_AddNumberToObject( mesh, "TotalIndices", totalIndices );
 
         cJSONExt_AddNumberToObjectIfDiffers( mesh, "VF-uv", m_NumUVChannels, (unsigned int)0 );
         cJSONExt_AddNumberToObjectIfDiffers( mesh, "VF-normal", m_HasNormals, false );
@@ -487,41 +489,39 @@ void Mesh::ExportToFile(const char* filename, const char* materialdir)
         cJSONExt_AddNumberToObjectIfDiffers( mesh, "VF-color", m_HasColor, false );
         cJSONExt_AddNumberToObjectIfDiffers( mesh, "VF-mostweights", m_MostBonesInfluences, (unsigned int)0 );
 
-        //// quick debug, write out first meshchunks verts/indices as readable text.
+        //// Quick debug, write out first meshchunks verts/indices as readable text.
         //{
-        //    unsigned int numvertsinthischunk = m_MeshChunks[0].m_Vertices.size();
-        //    unsigned int numindicesinthischunk = m_MeshChunks[0].m_Indices.size();
+        //    unsigned int numVertsInThisChunk = m_MeshChunks[0].m_Vertices.size();
+        //    unsigned int numIndicesInThisChunk = m_MeshChunks[0].m_Indices.size();
 
         //    cJSON* verts = cJSON_CreateArray();
         //    cJSON_AddItemToObject( mesh, "verts", verts );
 
-        //    for( unsigned int i=0; i<numvertsinthischunk; i++ )
+        //    for( unsigned int i=0; i<numVertsInThisChunk; i++ )
         //    {
         //        cJSON* pos = cJSON_CreateObject();
         //        cJSONExt_AddFloatArrayToObject( pos, "pos", &m_MeshChunks[0].m_Vertices[i].pos.x, 3 );
         //        cJSON_AddItemToArray( verts, pos );
         //    }
 
-        //    cJSONExt_AddIntArrayToObject( mesh, "indices", (int*)&m_MeshChunks[0].m_Indices.front(), numindicesinthischunk );
+        //    cJSONExt_AddIntArrayToObject( mesh, "indices", (int*)&m_MeshChunks[0].m_Indices.front(), numIndicesInThisChunk );
         //}
     }
 
     // Save the json object to disk.
-    //char* jsonstr = cJSON_PrintUnformatted( root );
-    char* jsonstr = cJSON_Print( root );
+    //char* jsonString = cJSON_PrintUnformatted( root );
+    char* jsonString = cJSON_Print( root );
 
-    char outputfilename[260];
-    size_t filenamelen = strlen(filename);
-    if( filenamelen > 7 && strcmp( &filename[filenamelen-7], ".mymesh" ) == 0 )
-        sprintf_s( outputfilename, 260, "%s", filename );
+    char outputFilename[260];
+    size_t filenameLen = strlen(filename);
+    if( filenameLen > 7 && strcmp( &filename[filenameLen-7], ".mymesh" ) == 0 )
+        sprintf_s( outputFilename, 260, "%s", filename );
     else
-        sprintf_s( outputfilename, 260, "%s.mymesh", filename );
+        sprintf_s( outputFilename, 260, "%s.mymesh", filename );
     
-    int byteswritten;
-
     FILE* file;
 #if MYFW_WINDOWS
-    fopen_s( &file, outputfilename, "wb" );
+    fopen_s( &file, outputFilename, "wb" );
 #else
     file = fopen( outputfilename, "wb" );
 #endif
@@ -531,15 +531,15 @@ void Mesh::ExportToFile(const char* filename, const char* materialdir)
     fprintf( file, "//\n" );
     fprintf( file, "//\n" );
     fprintf( file, "\n" );
-    fprintf( file, "%s", jsonstr );
-    free( jsonstr );
+    fprintf( file, "%s", jsonString );
+    free( jsonString );
 
     // Raw data needs to land on 4-byte boundary.
-    byteswritten = ftell( file ) + 1; // Add 1 for the \n that will be written before #RAW.
-    while( byteswritten % 4 != 0 )
+    int bytesWritten = ftell( file ) + 1; // Add 1 for the \n that will be written before #RAW.
+    while( bytesWritten % 4 != 0 )
     {
         fwrite( " ", 1, 1, file );
-        byteswritten++;
+        bytesWritten++;
     }
 
     // Write out a marker for start of raw data.
@@ -550,23 +550,23 @@ void Mesh::ExportToFile(const char* filename, const char* materialdir)
     //    - bone offset matrices                            - padded to start on 4-byte boundary
     //    - node transforms
     //    - animation data
-    const char rawdelimiter[] = "\n#RAW";
-    fwrite( rawdelimiter, 5, 1, file );
+    const char rawDelimiter[] = "\n#RAW";
+    fwrite( rawDelimiter, 5, 1, file );
 
-    byteswritten = ftell( file );
-    assert( byteswritten % 4 == 0 );
+    bytesWritten = ftell( file );
+    assert( bytesWritten % 4 == 0 );
 
-    for( unsigned int mati=0; mati<nummaterials; mati++ )
+    for( unsigned int mati=0; mati<numMaterials; mati++ )
     {
-        unsigned int totalverts = 0;
-        unsigned int totalindices = 0;
+        unsigned int totalVerts = 0;
+        unsigned int totalIndices = 0;
 
-        for( unsigned int mi=0; mi<nummeshes; mi++ )
+        for( unsigned int mi=0; mi<numMeshes; mi++ )
         {
             if( m_MeshChunks[mi].m_MaterialIndex == mati )
             {
-                totalverts += m_MeshChunks[mi].m_Vertices.size();
-                totalindices += m_MeshChunks[mi].m_Indices.size();
+                totalVerts += m_MeshChunks[mi].m_Vertices.size();
+                totalIndices += m_MeshChunks[mi].m_Indices.size();
             }
         }
 
@@ -579,9 +579,9 @@ void Mesh::ExportToFile(const char* filename, const char* materialdir)
             // Add padding to file.
             AddPaddingToReachNext4ByteBoundary( file );
 
-            unsigned int numvertsinthischunk = m_MeshChunks[mi].m_Vertices.size();
+            unsigned int numVertsInThisChunk = m_MeshChunks[mi].m_Vertices.size();
 
-            for( unsigned int vi=0; vi<numvertsinthischunk; vi++ )
+            for( unsigned int vi=0; vi<numVertsInThisChunk; vi++ )
             {
                 fwrite( &m_MeshChunks[mi].m_Vertices[vi].pos, sizeof(Vector3), 1, file );
 
@@ -601,15 +601,15 @@ void Mesh::ExportToFile(const char* filename, const char* materialdir)
                     fwrite( &m_MeshChunks[mi].m_Vertices[vi].color, sizeof(unsigned char) * 4, 1, file );
 
                 for( unsigned int i=0; i<m_MostBonesInfluences; i++ )
-                    fwrite( &m_MeshChunks[mi].m_Vertices[vi].boneindices[i], sizeof(unsigned char), 1, file );
+                    fwrite( &m_MeshChunks[mi].m_Vertices[vi].boneIndices[i], sizeof(unsigned char), 1, file );
 
                 for( unsigned int i=0; i<m_MostBonesInfluences; i++ )
                     fwrite( &m_MeshChunks[mi].m_Vertices[vi].weights[i], sizeof(float), 1, file );
             }
         }
 
-        // raw dump of indices.
-        int vertcount = 0;
+        // Raw dump of indices.
+        int vertCount = 0;
         for( unsigned int mi=0; mi<m_MeshChunks.size(); mi++ )
         {
             if( m_MeshChunks[mi].m_MaterialIndex != mati )
@@ -618,28 +618,28 @@ void Mesh::ExportToFile(const char* filename, const char* materialdir)
             // Add padding to file.
             AddPaddingToReachNext4ByteBoundary( file );
 
-            unsigned int numvertsinthischunk = m_MeshChunks[mi].m_Vertices.size();
+            unsigned int numVertsInThisChunk = m_MeshChunks[mi].m_Vertices.size();
         
             for( unsigned int i=0; i<m_MeshChunks[mi].m_Indices.size(); i++ )
             {
-                if( totalverts <= 256 ) // write indices as unsigned chars
+                if( totalVerts <= 256 ) // Write indices as unsigned chars.
                 {
-                    unsigned char index = vertcount + m_MeshChunks[mi].m_Indices[i];                
+                    unsigned char index = vertCount + m_MeshChunks[mi].m_Indices[i];                
                     fwrite( &index, sizeof(unsigned char), 1, file );
                 }
-                else if( totalverts <= 256*256 ) // write indices as unsigned shorts
+                else if( totalVerts <= 256*256 ) // Write indices as unsigned shorts.
                 {
-                    unsigned short index = vertcount + m_MeshChunks[mi].m_Indices[i];
+                    unsigned short index = vertCount + m_MeshChunks[mi].m_Indices[i];
                     fwrite( &index, sizeof(unsigned short), 1, file );
                 }
-                else // write indices as unsigned ints
+                else // Write indices as unsigned ints.
                 {
-                    unsigned int index = vertcount + m_MeshChunks[mi].m_Indices[i];
+                    unsigned int index = vertCount + m_MeshChunks[mi].m_Indices[i];
                     fwrite( &index, sizeof(unsigned int), 1, file );
                 }
             }
 
-            vertcount += numvertsinthischunk;
+            vertCount += numVertsInThisChunk;
         }
     }
 
@@ -649,8 +649,8 @@ void Mesh::ExportToFile(const char* filename, const char* materialdir)
     // Dump more raw data to our file, these come after all verts/indices for each mesh material chunk.
     {
         // Raw dump of bone matrices.
-        unsigned int totalbones = m_Bones.size();
-        for( unsigned int bi=0; bi<totalbones; bi++ )
+        unsigned int totalBones = m_Bones.size();
+        for( unsigned int bi=0; bi<totalBones; bi++ )
         {
             fwrite( &m_Bones[bi].m_OffsetMatrix.m11, sizeof(MyMatrix), 1, file );
         }
@@ -665,55 +665,55 @@ void Mesh::ExportToFile(const char* filename, const char* materialdir)
     delete[] MaterialsInUse;
 }
 
-void Mesh::ExportMaterials(const char* materialdir)
+void Mesh::ExportMaterials(const char* materialDir)
 {
-    if( m_pScene == 0 )
+    if( m_pScene == nullptr )
         return;
 
-    unsigned int nummeshes = m_MeshChunks.size();
-    unsigned int nummaterials = m_pScene->mNumMaterials;
+    unsigned int numMeshes = m_MeshChunks.size();
+    unsigned int numMaterials = m_pScene->mNumMaterials;
 
-    for( unsigned int mati=0; mati<nummaterials; mati++ )
+    for( unsigned int mati=0; mati<numMaterials; mati++ )
     {
-        bool MaterialsInUse = false;
+        bool materialsInUse = false;
 
-        for( unsigned int mi=0; mi<nummeshes; mi++ )
+        for( unsigned int mi=0; mi<numMeshes; mi++ )
         {
             if( m_MeshChunks[mi].m_MaterialIndex == mati )
             {
-                MaterialsInUse = true;
+                materialsInUse = true;
                 break;
             }
         }
 
-        if( MaterialsInUse )
+        if( materialsInUse )
         {
             char filename[255];
 
-            if( materialdir )
-                sprintf_s( filename, 255, "%s/%s.mymaterial", materialdir, m_Materials[mati].name.c_str() );
+            if( materialDir )
+                sprintf_s( filename, 255, "%s/%s.mymaterial", materialDir, m_Materials[mati].name.c_str() );
             else
                 sprintf_s( filename, 255, "%s.mymaterial", m_Materials[mati].name.c_str() );
 
             // Create a json object.
-            cJSON* root = cJSON_CreateObject();
+            cJSON* jRoot = cJSON_CreateObject();
 
-            cJSON* material = cJSON_CreateObject();
-            cJSON_AddItemToObject( root, "Material", material );
+            cJSON* jMaterial = cJSON_CreateObject();
+            cJSON_AddItemToObject( jRoot, "Material", jMaterial );
 
-            cJSON_AddStringToObject( material, "Name", m_Materials[mati].name.c_str() );
+            cJSON_AddStringToObject( jMaterial, "Name", m_Materials[mati].name.c_str() );
             //if( m_pShaderGroup )
-            //    cJSON_AddStringToObject( material, "Shader", m_pShaderGroup->GetName() );
+            //    cJSON_AddStringToObject( jMaterial, "Shader", m_pShaderGroup->GetName() );
             //if( m_pTextureColor )
-            //    cJSON_AddStringToObject( material, "TexColor", m_pTextureColor->m_Filename );
+            //    cJSON_AddStringToObject( jMaterial, "TexColor", m_pTextureColor->m_Filename );
 
-            cJSONExt_AddFloatArrayToObject( material, "ColorAmbient", &m_Materials[mati].colorambient.x, 4 );
-            cJSONExt_AddFloatArrayToObject( material, "ColorDiffuse", &m_Materials[mati].colordiffuse.x, 4 );
-            cJSONExt_AddFloatArrayToObject( material, "ColorSpecular", &m_Materials[mati].colorspecular.x, 4 );
-            //cJSON_AddNumberToObject( material, "Shininess", m_Shininess );
+            cJSONExt_AddFloatArrayToObject( jMaterial, "ColorAmbient", &m_Materials[mati].colorAmbient.x, 4 );
+            cJSONExt_AddFloatArrayToObject( jMaterial, "ColorDiffuse", &m_Materials[mati].colorDiffuse.x, 4 );
+            cJSONExt_AddFloatArrayToObject( jMaterial, "ColorSpecular", &m_Materials[mati].colorSpecular.x, 4 );
+            //cJSON_AddNumberToObject( jMaterial, "Shininess", m_Shininess );
 
             // Save the json object to disk.
-            char* jsonstr = cJSON_Print( root );
+            char* jsonString = cJSON_Print( jRoot );
 
             FILE* file;
 #if MYFW_WINDOWS
@@ -721,12 +721,15 @@ void Mesh::ExportMaterials(const char* materialdir)
 #else
             file = fopen( filename, "wb" );
 #endif
-            fprintf( file, "%s", jsonstr );
-            free( jsonstr );
+            if( file != nullptr )
+            {
+                fprintf( file, "%s", jsonString );
+                free( jsonString );
 
-            fclose( file );
+                fclose( file );
+            }
 
-            cJSON_Delete( root );
+            cJSON_Delete( jRoot );
         }
     }
 }

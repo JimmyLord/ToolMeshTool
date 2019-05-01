@@ -1,5 +1,5 @@
-#ifndef __COMMONHEADER_H__
-#define __COMMONHEADER_H__
+#ifndef __MeshToolPCH_H__
+#define __MeshToolPCH_H__
 
 #if MESHTOOLGUI
 
@@ -45,19 +45,15 @@
 #include "../../../assimp/include/assimp/Importer.hpp"
 #include "../../../assimp/include/assimp/scene.h"
 #include "../../../assimp/include/assimp/postprocess.h"
-//#include "../../../assimp/code/AssimpPCH.h"
 
 #include "Framework/Utility.h"
 #include "Framework/Vector.h"
 #include "Framework/MyMatrix.h"
 #include "Framework/cJSONHelpers.h"
 
-#include "Mesh.h"
-#include "MeshTool.h"
-
 #if MESHTOOLGUI
 #include "ShaderProgram.h"
 #include "GameCore.h"
 #endif
 
-#endif //__COMMONHEADER_H__
+#endif //__MeshToolPCH_H__

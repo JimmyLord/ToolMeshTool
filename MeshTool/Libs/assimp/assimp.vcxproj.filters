@@ -1313,6 +1313,9 @@
     <ClInclude Include="..\..\..\assimp\code\Importer\STEPParser\STEPFileReader.h">
       <Filter>code\Importer\STEPParser</Filter>
     </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>MyHacks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\assimp\code\BlenderDNA.inl">
@@ -1332,6 +1335,9 @@
     </None>
     <None Include="..\..\..\assimp\code\makefile.mingw">
       <Filter>code</Filter>
+    </None>
+    <None Include="..\..\..\assimp\include\assimp\config.h.in">
+      <Filter>Include</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

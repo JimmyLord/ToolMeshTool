@@ -3,15 +3,15 @@
 
 struct SettingsStruct
 {
-    char* sourcefilename;
-    char* outputfilename;
-    char* materialdir;
+    char* sourceFilename;
+    char* outputFilename;
+    char* materialDir;
 
     SettingsStruct()
     {
-        sourcefilename = 0;
-        outputfilename = 0;
-        materialdir = 0;
+        sourceFilename = 0;
+        outputFilename = 0;
+        materialDir = 0;
     }
 
     ~SettingsStruct()

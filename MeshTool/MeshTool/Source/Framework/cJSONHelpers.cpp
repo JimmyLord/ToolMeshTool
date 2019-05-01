@@ -15,7 +15,7 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "CommonHeader.h"
+#include "MeshToolPCH.h"
 
 void cJSONExt_AddIntArrayToObject(cJSON* object, const char* name, int* vars, int numinarray)
 {
